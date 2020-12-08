@@ -1,0 +1,7 @@
+group1:
+  sseinfo: 'CrawlSseinfo' #上海互动易
+  cnstock: 'CrawlCnstock' #深圳互动易
+  cninfo: 'CrawlCninfo' #上证快讯
+
+group2:
+  cs: 'CrawlCs' #中证快讯

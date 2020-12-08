@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <title>crawl management page</title>
+    <link rel="stylesheet" href="js/layui/css/layui.css" media="all">
+    <script src="js/jquery-3.4.1.min.js" type="text/javascript" charset="utf-8"></script>
+</head>
+
+<body >
+
+<!-- header -->
+<ul class="layui-nav layui-bg-black">
+    <li class="layui-nav-item layui-this"><a href="#">搜索爬虫结果</a></li>
+    <li class="layui-nav-item"><a href="bos_kw.html">关键字管理</a></li>
+</ul>
+<hr>
+
+<!-- content -->
+
+<div class="layui-fluid" >
+    <form class="layui-form" action="search_crawl_result" lay-filter="index_form">
+    <div class="layui-row layui-col-space10" >
+        <div class="layui-col-md12" >
+            <div class="layui-inline" name="search_websites_div" id="search_websites_div">
+            </div>
+        </div>
+    </div>
+    <div class="layui-row layui-col-space10" >
+        <div class="layui-col-md3" >
+            <div class="layui-inline">
+                <input type="text" name="search_word" id="search_word" placeholder="请输入搜索内容" class="layui-input" lay-verType="tips" style="width:200px;">
+            </div>
+        </div>
+        <div class="layui-col-md3" >
+            <button type="button" class="layui-btn" lay-submit="" lay-filter="search_confirm"><i class="layui-icon layui-icon-search"></i>搜索</button>
+        </div>
+    </div>
+    </form>
+    <div class="layui-row layui-col-space10" >
+        <div class="layui-col-md12" >
+            <table id="result_table" lay-filter="result_table"></table>
+        </div>
+    </div>
+</div>
+
+<!-- javascript -->
+<script src="js/layui/layui.js?v="></script>
+<script>
+layui.config({
+    version: 1 //为了更新 js 缓存，可忽略
+});
+
+//JavaScript代码区域
+layui.use(['util', 'form', 'element', 'table', 'laydate', 'layer', 'upload'], function(){
+    var element = layui.element;
+    var layer = layui.layer;
+    var form = layui.form;
+    var table = layui.table;
+    var upload = layui.upload;
+    var laydate = layui.laydate;
+    var util = layui.util;
+
+    var $ = layui.$; //重点处
+
+    var result_table = table.render({
+        elem: '#result_table'
+        ,id: 'result_table'
+        //,toolbar: true
+        //,defaultToolbar: false//['exports']
+        ,title: '爬虫结果信息表'
+        ,text: {
+            none: '暂无数据'
+        }
+        ,totalRow: false
+        //,cellMinWidth: 60 //全局定义常规单元格的最小宽度，layui 2.2.1 新增
+        //,height: 'full-45'
+        ,cols: [[
+            {field:'website_name', width: 120, title: '站点', align: 'left'}
+            ,{field:'title', minWidth: 150, title: '标题', align: 'left'}
+            ,{field:'content', minWidth: 400, title: '内容', align: 'left'}
+            ,{field:'news_time', width: 150, title: '时间', align: 'center'}
+            ,{field:'url', width: 80, title: '详情链接', align: 'center', templet: function(d){
+                if(d.url != ""){
+                    return '<a href="'+d.url+'" target="_blank" >查看详情</a>'
+                }
+                else{
+                    return ""
+                }
+            }}
+        ]]
+        ,data: {}
+        ,size: 'sm'
+        ,page: true
+        ,limits: [10, 30, 50, 100]
+        ,limit: 30 //每页默认显示的数量
+        ,loading: false
+    });
+
+    function renderResultTable(table_data)
+    {
+        table.reload('result_table', {data: table_data});
+        //执行表格“尺寸结构”的重置，一般写在对应的事件中
+        table.resize('result_table');
+    }
+
+    function refreshResultTable(){
+
+        $.post(
+            "/index.php"
+            ,{'action':'search_crawl_result'}
+            ,function(rtn){
+                if(rtn.result=='Y'){
+                    renderResultTable(rtn.data);
+                }
+            }
+            ,'json'
+
+        );
+    }
+
+    function refreshWebsites()
+    {
+        $.post(
+            "/index.php"
+            ,{'action':'get_websites'}
+            ,function(rtn){
+                if(rtn.result=='Y')
+                {
+                    $("#search_websites_div").html('');
+                    $.each(rtn.data,function(n,value) {
+                        $("#search_websites_div").append("<input type='checkbox' name='websites[]' value='"+n+"' title='"+value+"'>");
+                    });
+
+                    form.render('checkbox', 'index_form');
+                }
+            }
+            ,'json'
+        );
+    }
+
+    refreshWebsites();
+    refreshResultTable();
+
+    //监听提交
+    form.on('submit(search_confirm)', function(data){
+        data = data.field
+        data['action'] = 'search_crawl_result'
+
+        //layer.alert(JSON.stringify(data));
+
+        //return false;
+        $.post(
+            "/index.php"
+            ,data
+            ,function(rtn){
+                if(rtn.result == "Y"){
+                    renderResultTable(rtn.data);
+                }else{
+                    layer.msg("搜索失败", {time: 2000});
+                }
+            }
+            ,"json"
+        );
+        return false;
+    });
+
+    //监听行双击事件
+    table.on('row(result_table)', function(obj){
+
+        content2 = '<div class="layui-fluid" >\
+            <div class="layui-row layui-col-space10" > \
+                <div class="layui-col-md12" >'+obj.data.title+'</div> \
+            </div> \
+            <hr /> \
+            <div class="layui-row layui-col-space10" > \
+                <div class="layui-col-md12" >'+obj.data.content+'</div> \
+            </div> \
+        </div>';
+
+
+        urlstr = "";
+        if(obj.data.url != ""){
+            urlstr = '<a href="'+obj.data.url+'" target="_blank" >查看详情</a>'
+        }
+
+        content = '<div class="layui-card"> \
+        <div class="layui-card-header">'+'【'+obj.data.website_name+'】&nbsp;&nbsp;'+obj.data.news_time+'&nbsp;&nbsp;'+urlstr+'</div>\
+        <div class="layui-card-body">'+obj.data.title+'<hr /><hr />'+obj.data.content+'</div> \
+        </div>';
+        console.log(obj.tr) //得到当前行元素对象
+        console.log(obj.data) //得到当前行数据
+        layer.open({
+            type: 1
+            ,id: 'show_crawl_result_div'
+            //,shade: false
+            ,shadeClose: true
+            ,title: ''
+            ,content: content //注意，如果str是object，那么需要字符拼接。
+            ,area: ['500px', '500px']
+        });
+    });
+
+});
+</script>
+</body>
+</html>

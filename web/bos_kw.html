@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <title>crawl management page</title>
+    <link rel="stylesheet" href="js/layui/css/layui.css" media="all">
+    <script src="js/jquery-3.4.1.min.js" type="text/javascript" charset="utf-8"></script>
+</head>
+
+<body >
+
+<!-- header -->
+<ul class="layui-nav layui-bg-black">
+    <li class="layui-nav-item"><a href="index.html">搜索爬虫结果</a></li>
+    <li class="layui-nav-item layui-this"><a href="#">关键字管理</a></li>
+</ul>
+<hr>
+
+<!-- content -->
+
+<div class="layui-fluid" >
+    <form class="layui-form" action="" lay-filter="index_form">
+    <div class="layui-row layui-col-space10" >
+        <div class="layui-col-md2" >
+            <input type="text" name="kw_name" id="kw_name" placeholder="新增关键字" class="layui-input" lay-verType="tips" style="width:200px;">
+        </div>
+        <div class="layui-col-md5" >
+            <button type="submit" class="layui-btn" lay-submit="" lay-filter="create_kw" id="create_kw"><i class="layui-icon layui-icon-add-circle"></i>新建关键字</button>
+            &nbsp;&nbsp;&nbsp;&nbsp;
+            <button type="submit" class="layui-btn layui-btn-danger" lay-submit="" lay-filter="delete_kw" id="delete_kw"><i class="layui-icon layui-icon-delete"></i>删除选中关键字</button>
+        </div>
+    </div>
+
+    <hr />
+    <div class="layui-row layui-col-space10" >
+        <div class="layui-col-md12" name='result_div' id='result_div'></div>
+    </div>
+    </form>
+</div>
+
+<script type="text/html" id="toolTrades">
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+</script>
+
+<!-- javascript -->
+<script src="js/layui/layui.js?v="></script>
+<script>
+layui.config({
+    version: 1 //为了更新 js 缓存，可忽略
+});
+
+//JavaScript代码区域
+layui.use(['util', 'form', 'element', 'table', 'laydate', 'layer', 'upload'], function(){
+    var element = layui.element;
+    var layer = layui.layer;
+    var form = layui.form;
+    var table = layui.table;
+    var upload = layui.upload;
+    var laydate = layui.laydate;
+    var util = layui.util;
+
+    var $ = layui.$; //重点处
+
+
+    function refreshResultDiv()
+    {
+        $.post(
+            "/index.php"
+            ,{'action':'get_keywords'}
+            ,function(rtn){
+                if(rtn.result=='Y')
+                {
+                    $("#result_div").html('');
+                    $.each(rtn.data,function(n, value) {
+                        $("#result_div").append("<input type='checkbox' name='keywords[]' value='"+value+"' title='"+value+"'>");
+                    });
+
+                    form.render('checkbox', 'index_form');
+                }
+            }
+            ,'json'
+        );
+    }
+    refreshResultDiv();
+
+    //监听提交
+    form.on('submit(create_kw)', function(data){
+        data = data.field
+
+        if(data.kw_name == ""){
+            layer.msg('请输入关键字', {time: 1000} );
+            return false;
+        }
+
+        data['action'] = 'create_keyword'
+
+        //layer.alert(JSON.stringify(data));
+
+        $.post(
+            "/index.php"
+            ,data
+            ,function(rtn){
+                if(rtn.result == "Y"){
+                    layer.msg("新建关键字成功", {time: 2000});
+                    refreshResultDiv();
+                }else{
+                    layer.msg("新建关键字失败", {time: 2000});
+                }
+            }
+            ,"json"
+        );
+        return false;
+    });
+
+    //监听提交
+    form.on('submit(delete_kw)', function(data){
+        data = data.field
+
+        data['action'] = 'delete_keyword'
+
+        $.post(
+            "/index.php"
+            ,data
+            ,function(rtn){
+                if(rtn.result == "Y"){
+                    layer.msg("删除关键字成功", {time: 2000});
+                    refreshResultDiv();
+                }else{
+                    layer.msg("删除关键字失败", {time: 2000});
+                }
+            }
+            ,"json"
+        );
+        return false;
+    });
+
+});
+
+
+</script>
+</body>
+</html>
