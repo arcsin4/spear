@@ -5,3 +5,4 @@ group1:
 
 group2:
   cs: 'CrawlCs' #中证快讯
+  36kr: 'Crawl36kr' #36氪

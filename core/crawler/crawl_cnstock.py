@@ -52,7 +52,7 @@ class CrawlCnstock(BaseCrawlRequest):
         if self._firstrun:
             system_log.info('cnstock first run')
 
-            for page in range(1, 5):
+            for page in range(1, 10):
                 self._run(page)
                 time.sleep(1)
 
