@@ -9,7 +9,7 @@ class MysqlAdapter(object):
     def __init__(self, mysql_yaml_path):
         self._conn = {}
         self._mysql_yaml_path = mysql_yaml_path
-        # 加载配置 
+        # 加载配置
         with open(self._mysql_yaml_path, 'r', encoding='utf-8') as f:
             self._sql_conf = yaml.load(f.read(), Loader=yaml.FullLoader)
 
@@ -20,7 +20,7 @@ class MysqlAdapter(object):
         # 创建连接
         try:
             assert sql_database_name in self._conn
-            self._conn[sql_database_name].ping()
+            self._conn[sql_database_name].ping(reconnect=True)
         except:
             self._conn[sql_database_name] = pymysql.connect(host=self._sql_conf['host'], port=self._sql_conf['port'], user=self._sql_conf['user'], passwd=self._sql_conf['password'], db=sql_database_name, charset='utf8')
         conn = self._conn[sql_database_name]

@@ -12,9 +12,7 @@ class EventTrigger(object):
     def __init__(self):
         pass
 
-
     def runTrigger(self, *k):
-
         res = set()
         for text in k:
             for kw in env.event_keywords:
