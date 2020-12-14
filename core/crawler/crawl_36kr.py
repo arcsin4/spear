@@ -5,11 +5,13 @@ import json
 
 from core.env import env
 from core.logger import system_log
-from core.base.item_data_store import item_data_store
+from core.base.item_data_store import ItemDataStore
 from core.crawler.base_crawl_request import BaseCrawlRequest
 from bs4 import BeautifulSoup
 
 class Crawl36kr(BaseCrawlRequest):
+
+    _item_data_store = None
 
     _headers = {
             'Referer': 'https://36kr.com/newsflashes',
@@ -37,7 +39,9 @@ class Crawl36kr(BaseCrawlRequest):
 
         super(Crawl36kr, self).__init__()
 
-        res = item_data_store.getCrawlResults(website=self._website, limit=100)
+        self._item_data_store = ItemDataStore()
+
+        res = self._item_data_store.getCrawlResults(website=self._website, limit=100)
         self._pids = set([str(r['pid']) for r in res])
 
     def _runNext(self, page_callback):
@@ -130,7 +134,7 @@ class Crawl36kr(BaseCrawlRequest):
 
         if len(datas) > 0:
             #['website','pid','title','content','url','news_time','create_time']
-            item_data_store.saveCrawlResults(data = datas)
+            self._item_data_store.saveCrawlResults(data = datas)
 
             for x in datas:
                 self._pids.add(x[1])

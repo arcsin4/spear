@@ -20,9 +20,10 @@ import logbook
 from core.logger import system_log
 
 from core.crawler import *
-from core.base.item_data_store import item_data_store
+from core.base.item_data_store import ItemDataStore
 from core.event.event_trigger import event_trigger
 
+item_data_store = ItemDataStore()
 env.setEventKeywords(item_data_store.getEventKeywords())
 env.setWebsites(item_data_store.getWebsites())
 

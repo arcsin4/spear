@@ -56,6 +56,3 @@ class ItemDataStore(object):
         columns = ['website','pid', 'title','content','url','news_time','create_time']
 
         return self._mysql_adapter.insertMany( sql_database_name = db_name, sql_table_name = table_name, columns = columns, values = data)
-
-
-item_data_store = ItemDataStore()

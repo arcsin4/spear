@@ -179,14 +179,13 @@ layui.use(['util', 'form', 'element', 'table', 'laydate', 'layer', 'upload'], fu
             </div> \
         </div>';
 
-
         urlstr = "";
         if(obj.data.url != ""){
-            urlstr = '<a href="'+obj.data.url+'" target="_blank" >查看详情</a>'
+            urlstr = '<a href="'+obj.data.url+'" target="_blank" ><i class="layui-icon layui-icon-link"></i></a>'
         }
 
         content = '<div class="layui-card"> \
-        <div class="layui-card-header">'+'【'+obj.data.website_name+'】&nbsp;&nbsp;'+obj.data.news_time+'&nbsp;&nbsp;'+urlstr+'</div>\
+        <div class="layui-card-header">'+'【'+obj.data.website_name+'】&nbsp;&nbsp;'+obj.data.news_time+'&nbsp;&nbsp;&nbsp;&nbsp;'+urlstr+'</div>\
         <div class="layui-card-body">'+obj.data.title+'<hr /><hr />'+obj.data.content+'</div> \
         </div>';
         console.log(obj.tr) //得到当前行元素对象

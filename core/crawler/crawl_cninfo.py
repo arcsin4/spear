@@ -4,11 +4,13 @@ import json
 
 from core.env import env
 from core.logger import system_log
-from core.base.item_data_store import item_data_store
+from core.base.item_data_store import ItemDataStore
 from core.event.event_trigger import event_trigger
 from core.crawler.base_crawl_request import BaseCrawlRequest
 
 class CrawlCninfo(BaseCrawlRequest):
+
+    _item_data_store = None
 
     _headers = {
             'Referer': 'http://irm.cninfo.com.cn/',
@@ -33,7 +35,9 @@ class CrawlCninfo(BaseCrawlRequest):
 
         super(CrawlCninfo, self).__init__()
 
-        res = item_data_store.getCrawlResults(website=self._website, limit=100)
+        self._item_data_store = ItemDataStore()
+
+        res = self._item_data_store.getCrawlResults(website=self._website, limit=100)
         self._pids = set([str(r['pid']) for r in res])
 
     def _run(self, page):
@@ -97,7 +101,7 @@ class CrawlCninfo(BaseCrawlRequest):
 
         if len(datas) > 0:
             #['website','pid','title','content','url','news_time','create_time']
-            item_data_store.saveCrawlResults(data = datas)
+            self._item_data_store.saveCrawlResults(data = datas)
 
             for x in datas:
                 self._pids.add(x[1])
