@@ -21,7 +21,7 @@ class EventTrigger(object):
 
         return list(res)
 
-    def runNotify(self, head_kws, title, content, origin='', jump_url='', news_time=0):
+    def runNotify(self, head_kws, title, content, origin='', jump_url='', news_time=0, **kw):
         now_time = time.time()
         if int(news_time) - time.time() > 86400:
             system_log.debug('runNotify msg droped news_time:{} now_time:{}'.format(news_time, now_time))

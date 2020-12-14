@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import time
-import datetime
 import json
 
 from core.env import env
@@ -41,8 +40,18 @@ class Crawl36kr(BaseCrawlRequest):
 
         self._item_data_store = ItemDataStore()
 
+        self.refreshPids()
+
+    def refreshPids(self):
+
         res = self._item_data_store.getCrawlResults(website=self._website, limit=100)
         self._pids = set([str(r['pid']) for r in res])
+
+    def _chkPidExist(self, pid):
+        return str(pid) in self._pids
+
+    def _addPid(self, pid):
+        self._pids.add(str(pid))
 
     def _runNext(self, page_callback):
         url = self._url
@@ -117,7 +126,7 @@ class Crawl36kr(BaseCrawlRequest):
         for item in item_list:
             pid = str(item['itemId'])
 
-            if pid in self._pids:
+            if self._chkPidExist(pid):
                 break
 
             title = item['templateMaterial']['widgetTitle']
@@ -137,7 +146,7 @@ class Crawl36kr(BaseCrawlRequest):
             self._item_data_store.saveCrawlResults(data = datas)
 
             for x in datas:
-                self._pids.add(x[1])
+                self._addPid(x[1])
 
         if int(has_nextpage) >= 1 and len(page_callback) > 0:
             return page_callback

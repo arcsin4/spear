@@ -44,8 +44,18 @@ class CrawlSseinfo(BaseCrawlRequest):
 
         self._item_data_store = ItemDataStore()
 
+        self.refreshPids()
+
+    def refreshPids(self):
+
         res = self._item_data_store.getCrawlResults(website=self._website, limit=100)
         self._pids = set([str(r['pid']) for r in res])
+
+    def _chkPidExist(self, pid):
+        return str(pid) in self._pids
+
+    def _addPid(self, pid):
+        self._pids.add(str(pid))
 
     def _run(self, page):
         url = self._url.format(self._pagesize, page, str(int(time.time()*1000)))
@@ -122,7 +132,7 @@ class CrawlSseinfo(BaseCrawlRequest):
 
             pid = str(e.attrs['id'].split('-')[1])
 
-            if pid in self._pids:
+            if self._chkPidExist(pid):
                 break
 
             title = e.find(class_='m_feed_detail m_qa_detail').find(class_='m_feed_txt').get_text(separator=' ', strip=True).strip(' :')
@@ -149,7 +159,7 @@ class CrawlSseinfo(BaseCrawlRequest):
             self._item_data_store.saveCrawlResults(data = datas)
 
             for x in datas:
-                self._pids.add(x[1])
+                self._addPid(x[1])
 
         """
         <div class="m_feed_item" id="item-661910">

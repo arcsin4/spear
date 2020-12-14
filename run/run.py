@@ -45,6 +45,7 @@ def threadCrawlWorker(**kw):
             except Exception as ex:
                 system_log.error('crawl run error: {}'.format(ex))
                 continue
+
         time.sleep(random.randint(3,5))
 
         monitor_msg = {
@@ -74,6 +75,8 @@ def threadTriggerWorker():
 
                     notify_msg = {
                         'head_kws':t_res,
+                        'website':website,
+                        'pid':pid,
                         'title':title,
                         'content':content,
                         'origin':origin,
@@ -81,6 +84,10 @@ def threadTriggerWorker():
                         'news_time':news_time
                     }
                     env.notify_task_queue.put(json.dumps(notify_msg))
+
+                    #columns = ['website','pid', 'trigger_words', 'title','content', 'origin', 'jump_url','news_time','create_time']
+                    item_data_store.saveNotifyMsg([notify_msg['website'], notify_msg['pid'], ','.join(notify_msg['head_kws']), notify_msg['title'], notify_msg['content'], notify_msg['origin'], notify_msg['jump_url'], notify_msg['news_time'], int(time.time()) ])
+
                 #time.sleep(1)
             except queue.Empty as ex:
                 continue

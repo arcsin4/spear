@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import yaml
-
+import os
 class Environment(object):
 
     _conf_dir = None
@@ -22,6 +22,9 @@ class Environment(object):
     def conf_dir(self):
         return self._conf_dir
 
+    @property
+    def log_dir(self):
+        return os.path.abspath(os.path.join(self._conf_dir,os.path.pardir,'log'))
 
     @property
     def env_conf(self):

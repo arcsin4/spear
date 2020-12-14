@@ -56,3 +56,12 @@ class ItemDataStore(object):
         columns = ['website','pid', 'title','content','url','news_time','create_time']
 
         return self._mysql_adapter.insertMany( sql_database_name = db_name, sql_table_name = table_name, columns = columns, values = data)
+
+    #保存通知记录
+    def saveNotifyMsg(self, data):
+
+        db_name = self._db_name
+        table_name = 'notify_msg'
+        columns = ['website','pid', 'trigger_words', 'title','content', 'origin', 'jump_url','news_time','create_time']
+
+        return self._mysql_adapter.insertOne( sql_database_name = db_name, sql_table_name = table_name, columns = columns, values = data)

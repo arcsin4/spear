@@ -5,7 +5,6 @@ import json
 from core.env import env
 from core.logger import system_log
 from core.base.item_data_store import ItemDataStore
-from core.event.event_trigger import event_trigger
 from core.crawler.base_crawl_request import BaseCrawlRequest
 
 class CrawlCninfo(BaseCrawlRequest):
@@ -37,8 +36,18 @@ class CrawlCninfo(BaseCrawlRequest):
 
         self._item_data_store = ItemDataStore()
 
+        self.refreshPids()
+
+    def refreshPids(self):
+
         res = self._item_data_store.getCrawlResults(website=self._website, limit=100)
         self._pids = set([str(r['pid']) for r in res])
+
+    def _chkPidExist(self, pid):
+        return str(pid) in self._pids
+
+    def _addPid(self, pid):
+        self._pids.add(str(pid))
 
     def _run(self, page):
         url = self._url
@@ -83,7 +92,7 @@ class CrawlCninfo(BaseCrawlRequest):
         for l in m['results']:
             pid = str(l['indexId'])
 
-            if pid in self._pids:
+            if self._chkPidExist(pid):
                 break
 
             title = l['companyShortName']+' ['+l['stockCode']+']: '+l['mainContent']
@@ -104,4 +113,4 @@ class CrawlCninfo(BaseCrawlRequest):
             self._item_data_store.saveCrawlResults(data = datas)
 
             for x in datas:
-                self._pids.add(x[1])
+                self._addPid(x[1])
