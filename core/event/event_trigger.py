@@ -22,14 +22,31 @@ class EventTrigger(object):
         return list(res)
 
     def runNotify(self, head_kws, title, content, origin='', jump_url='', news_time=0, **kw):
+
+        now_datetime = datetime.datetime.now()
+
+        notify_start = 9
+        notify_end = 15
+
+        try:
+            notify_start = env.env_conf['trigger_notify_period']['value'][0]
+            notify_end = env.env_conf['trigger_notify_period']['value'][1]
+        except Exception as ex:
+            system_log.error("get env_conf trigger_notify_period failed {}".format(env.env_conf))
+            pass
+
+        if int(now_datetime.hour) < notify_start or int(now_datetime.hour) > notify_end:
+            return
+
         now_time = time.time()
 
         expired_seconds = 3600
 
         try:
-            if int(env.crawl_conf['trigger_msg_expired']['value']) > 0:
-                expired_seconds = int(env.crawl_conf['trigger_msg_expired']['value'])
-        except:
+            if int(env.env_conf['trigger_msg_expired']['value']) > 0:
+                expired_seconds = int(env.env_conf['trigger_msg_expired']['value'])
+        except Exception as ex:
+            system_log.error("get env_conf trigger_msg_expired failed {}".format(env.env_conf))
             pass
 
         if int(news_time) - time.time() > expired_seconds:

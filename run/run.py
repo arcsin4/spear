@@ -47,9 +47,10 @@ def threadCrawlWorker(**kw):
         if freq is None or len(freq) <= 0:
             freq = [10, 15]
             try:
-                if len(env.crawl_conf['default_crawl_freq']) > 0:
-                    freq = env.crawl_conf['default_crawl_freq']
-            except:
+                if len(env.env_conf['default_crawl_freq']['value']) > 0:
+                    freq = env.env_conf['default_crawl_freq']['value']
+            except Exception as ex:
+                system_log.error("get env_conf default_crawl_freq failed {}".format(env.env_conf))
                 pass
 
         env.registCrawler(crawl_website, freq=freq, trigger=trigger, trigger_part=trigger_part)
@@ -57,6 +58,7 @@ def threadCrawlWorker(**kw):
         crawlers[crawl_website] = eval(crawl_website_conf['class'])()
 
     while True:
+
         for crawl_website, cls in crawlers.items():
 
             if env.crawler_status[crawl_website]['last_run'] <= 0:
@@ -64,7 +66,7 @@ def threadCrawlWorker(**kw):
                 pass
             else:
                 if time.time() - env.crawler_status[crawl_website]['last_run'] <= env.crawler_status[crawl_website]['freq'][0]:
-                    system_log.error('{} run to fast'.format(crawl_website))
+                    system_log.debug('{} run to fast'.format(crawl_website))
                     continue
 
             try:
@@ -74,7 +76,6 @@ def threadCrawlWorker(**kw):
             except Exception as ex:
                 system_log.error('crawl run error: {} {}'.format(ex, str(traceback.format_exc())))
                 continue
-
 
         time.sleep(random.randint(3,5))
 
@@ -230,7 +231,7 @@ def threadEnvWorker():
         }
         env.monitor_task_queue.put(json.dumps(monitor_msg))
 
-        system_log.error(env.crawler_status)
+        system_log.debug('env crawler status :'.format(env.crawler_status))
 
         time.sleep(30)
 
