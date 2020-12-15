@@ -1,8 +1,40 @@
+#问答类的，关键字触发在回答内容里
+#其它类的，关键字触发在标题和摘要里，不需要触发正文内容
+
 group1:
-  sseinfo: 'CrawlSseinfo' #上海互动易
-  cnstock: 'CrawlCnstock' #深圳互动易
-  cninfo: 'CrawlCninfo' #上证快讯
+  sseinfo: #上海互动易
+    website: 'sseinfo'
+    class: 'CrawlSseinfo'
+    freq: [] #默认10, 15
+    trigger: true
+    trigger_part: ['content']
+
+  cnstock: #深圳互动易
+    website: 'cnstock'
+    class: 'CrawlCnstock'
+    freq: [] #默认10, 15
+    trigger: true
+    trigger_part: ['content']
+
+  cninfo: #上证快讯
+    website: 'cninfo'
+    class: 'CrawlCninfo'
+    freq: [] #默认10, 15
+    trigger: true
+    trigger_part: ['title']
 
 group2:
-  cs: 'CrawlCs' #中证快讯
-  36kr: 'Crawl36kr' #36氪
+
+  cs: #中证快讯
+    website: 'cs'
+    class: 'CrawlCs'
+    freq: [] #默认10, 15
+    trigger: true
+    trigger_part: ['title']
+
+  36kr: #36氪
+    website: '36kr'
+    class: 'Crawl36kr'
+    freq: [] #默认10, 15
+    trigger: true
+    trigger_part: ['title']

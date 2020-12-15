@@ -54,11 +54,11 @@ class CrawlCs(BaseCrawlRequest):
         status_code, response = self.get(url=url, get_params={})
 
         if status_code == 200:
-            system_log.debug('runCrawl success [{}] {}'.format(status_code, url))
+            system_log.debug('{} runCrawl success [{}] {}'.format(self._website, status_code, url))
 
             self.parseData(response)
         else:
-            system_log.error('runCrawl failed [{}] {}'.format(status_code, url))
+            system_log.error('{} runCrawl failed [{}] {}'.format(self._website, status_code, url))
 
     def run(self):
 
@@ -87,7 +87,16 @@ class CrawlCs(BaseCrawlRequest):
             jumpurl = urljoin(self._url, e.find(name='a').attrs['href'])
             content = self._parseDataDetail(jumpurl)
 
-            d = [self._website, pid, title, content, jumpurl, news_time, int(time.time())]
+            d = {
+                'website': self._website,
+                'pid': pid,
+                'title': title,
+                'content': content,
+                'url': jumpurl,
+                'news_time': news_time,
+                'create_time': int(time.time()),
+            }
+            #d = [self._website, pid, title, content, jumpurl, news_time, int(time.time())]
 
             env.trigger_task_queue.put(json.dumps(d))
 
@@ -98,7 +107,7 @@ class CrawlCs(BaseCrawlRequest):
             self._item_data_store.saveCrawlResults(data = datas)
 
             for x in datas:
-                self._addPid(x[1])
+                self._addPid(x['pid'])
 
     def _parseDataDetail(self, url):
 

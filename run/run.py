@@ -8,13 +8,17 @@ sys.path.append(BASE_DIR) #把上级目录加入到变量中
 
 from core.env import env
 env.setConfDir(conf_dir = CONF_DIR)
+env.loadEnvCfg()
+env.loadCrawlCfg()
 
+import traceback
 import click
 import threading
 import queue
 import time
 import random
 import json
+import copy
 
 import logbook
 from core.logger import system_log
@@ -35,16 +39,42 @@ def threadCrawlWorker(**kw):
     system_log.info('crawl线程[{}] 启动'.format(threading.current_thread().name))
 
     crawlers = {}
-    for crawl_name,crawl_class in kw.items():
-        crawlers[crawl_name] = eval(crawl_class)()
+    for crawl_website,crawl_website_conf in kw.items():
+        freq = crawl_website_conf['freq']
+        trigger = crawl_website_conf['trigger']
+        trigger_part = crawl_website_conf['trigger_part']
+
+        if freq is None or len(freq) <= 0:
+            freq = [10, 15]
+            try:
+                if len(env.crawl_conf['default_crawl_freq']) > 0:
+                    freq = env.crawl_conf['default_crawl_freq']
+            except:
+                pass
+
+        env.registCrawler(crawl_website, freq=freq, trigger=trigger, trigger_part=trigger_part)
+
+        crawlers[crawl_website] = eval(crawl_website_conf['class'])()
 
     while True:
-        for cls in crawlers.values():
+        for crawl_website, cls in crawlers.items():
+
+            if env.crawler_status[crawl_website]['last_run'] <= 0:
+                system_log.debug('{} run last_run < 0'.format(crawl_website))
+                pass
+            else:
+                if time.time() - env.crawler_status[crawl_website]['last_run'] <= env.crawler_status[crawl_website]['freq'][0]:
+                    system_log.error('{} run to fast'.format(crawl_website))
+                    continue
+
             try:
                 cls.run()
+                env.crawler_status[crawl_website]['last_run'] = time.time()
+                env.crawler_status[crawl_website]['run_counts'] = env.crawler_status[crawl_website]['run_counts'] + 1
             except Exception as ex:
-                system_log.error('crawl run error: {}'.format(ex))
+                system_log.error('crawl run error: {} {}'.format(ex, str(traceback.format_exc())))
                 continue
+
 
         time.sleep(random.randint(3,5))
 
@@ -65,28 +95,48 @@ def threadTriggerWorker():
                 msg = env.trigger_task_queue.get(timeout=1)
                 system_log.debug('['+threading.current_thread().name+']: '+msg)
 
-                website, pid, title, content, jumpurl, news_time, create_time = json.loads(msg)
+                msg_data = json.loads(msg)
 
-                t_res = event_trigger.runTrigger(title, content)
-                if len(t_res) > 0:
+                website = msg_data['website']
+
+                if env.crawler_status[website]['trigger']:
+                    pass
+                else:
+                    continue
+
+                #website, pid, title, content, jumpurl, news_time, create_time = json.loads(msg)
+
+                trigger_flag = False
+
+                if len(env.crawler_status[website]['trigger_part']) > 0:
+                    tp = [msg_data[x] for x in env.crawler_status[website]['trigger_part']]
+                    head_kws = event_trigger.runTrigger(*tp)
+
+                    if len(head_kws) > 0:
+                        trigger_flag = True
+                else:
+                    head_kws = []
+                    trigger_flag = True
+
+                if trigger_flag:
                     origin = website
                     if website in env.websites.keys():
                         origin = env.websites[website]
 
                     notify_msg = {
-                        'head_kws':t_res,
-                        'website':website,
-                        'pid':pid,
-                        'title':title,
-                        'content':content,
-                        'origin':origin,
-                        'jump_url':jumpurl,
-                        'news_time':news_time
+                        'head_kws': head_kws,
+                        'website': website,
+                        'pid': msg_data['pid'],
+                        'title': msg_data['title'],
+                        'content': msg_data['content'],
+                        'origin': origin,
+                        'jump_url': msg_data['url'],
+                        'news_time': msg_data['news_time'],
                     }
                     env.notify_task_queue.put(json.dumps(notify_msg))
 
                     #columns = ['website','pid', 'trigger_words', 'title','content', 'origin', 'jump_url','news_time','create_time']
-                    item_data_store.saveNotifyMsg([notify_msg['website'], notify_msg['pid'], ','.join(notify_msg['head_kws']), notify_msg['title'], notify_msg['content'], notify_msg['origin'], notify_msg['jump_url'], notify_msg['news_time'], int(time.time()) ])
+                    item_data_store.saveTriggerMsg([notify_msg['website'], notify_msg['pid'], ','.join(notify_msg['head_kws']), notify_msg['title'], notify_msg['content'], notify_msg['origin'], notify_msg['jump_url'], notify_msg['news_time'], int(time.time()) ])
 
                 #time.sleep(1)
             except queue.Empty as ex:
@@ -179,6 +229,8 @@ def threadEnvWorker():
             'time': time.time(),
         }
         env.monitor_task_queue.put(json.dumps(monitor_msg))
+
+        system_log.error(env.crawler_status)
 
         time.sleep(30)
 

@@ -23,7 +23,16 @@ class EventTrigger(object):
 
     def runNotify(self, head_kws, title, content, origin='', jump_url='', news_time=0, **kw):
         now_time = time.time()
-        if int(news_time) - time.time() > 86400:
+
+        expired_seconds = 3600
+
+        try:
+            if int(env.crawl_conf['trigger_msg_expired']['value']) > 0:
+                expired_seconds = int(env.crawl_conf['trigger_msg_expired']['value'])
+        except:
+            pass
+
+        if int(news_time) - time.time() > expired_seconds:
             system_log.debug('runNotify msg droped news_time:{} now_time:{}'.format(news_time, now_time))
             return False
 

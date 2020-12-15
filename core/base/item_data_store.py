@@ -55,10 +55,12 @@ class ItemDataStore(object):
         table_name = 'crawl_result'
         columns = ['website','pid', 'title','content','url','news_time','create_time']
 
-        return self._mysql_adapter.insertMany( sql_database_name = db_name, sql_table_name = table_name, columns = columns, values = data)
+        values = [ [x[y]  for y in columns] for x in data]
 
-    #保存通知记录
-    def saveNotifyMsg(self, data):
+        return self._mysql_adapter.insertMany( sql_database_name = db_name, sql_table_name = table_name, columns = columns, values = values)
+
+    #保存触发记录
+    def saveTriggerMsg(self, data):
 
         db_name = self._db_name
         table_name = 'notify_msg'
