@@ -63,7 +63,22 @@ class ItemDataStore(object):
     def saveTriggerMsg(self, data):
 
         db_name = self._db_name
-        table_name = 'notify_msg'
+        table_name = 'trigger_msg'
         columns = ['website','pid', 'trigger_words', 'title','content', 'origin', 'jump_url','news_time','create_time']
 
         return self._mysql_adapter.insertOne( sql_database_name = db_name, sql_table_name = table_name, columns = columns, values = data)
+
+
+    #删除记录
+    def cleanData(self, expire_time=0):
+
+        db_name = self._db_name
+        table_name_trigger = 'trigger_msg'
+        table_name_crawl = 'crawl_result'
+
+        where = {
+            'news_time[<]': expire_time
+        }
+
+        self._mysql_adapter.deleteMany( sql_database_name = db_name, sql_table_name = table_name_trigger, where = where)
+        self._mysql_adapter.deleteMany( sql_database_name = db_name, sql_table_name = table_name_crawl, where = where)

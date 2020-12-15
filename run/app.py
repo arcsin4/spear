@@ -18,7 +18,6 @@ import queue
 import time
 import random
 import json
-import copy
 
 import logbook
 from core.logger import system_log

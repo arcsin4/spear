@@ -194,8 +194,8 @@ class MysqlAdapter(object):
         where_sql, data = self._analyzingWhere(where_dict=where)
         # 执行SQL，并返回受影响行数
         sql = "DELETE FROM " + sql_table_name + " WHERE " + where_sql
-        return self._execute(sql_database_name, sql, data, many=False)
 
+        return self._execute(sql_database_name, sql, data, many=False)
 
     def fetch(self, sql_database_name, sql_statement, sql_data=None, fetch_num=None):
         assert isinstance(sql_database_name, str) and len(sql_database_name) > 0
