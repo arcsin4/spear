@@ -230,7 +230,7 @@ def threadEnvWorker():
         }
         env.monitor_task_queue.put(json.dumps(monitor_msg))
 
-        system_log.debug('env crawler status :'.format(env.crawler_status))
+        system_log.debug('env crawler status {}:'.format(env.crawler_status))
 
         time.sleep(30)
 

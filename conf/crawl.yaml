@@ -9,19 +9,19 @@ group1:
     trigger: true
     trigger_part: ['content']
 
-  cnstock: #深圳互动易
+  cnstock: #上证快讯
     website: 'cnstock'
     class: 'CrawlCnstock'
     freq: [] #默认10, 15
     trigger: true
-    trigger_part: ['content']
+    trigger_part: ['title']
 
-  cninfo: #上证快讯
+  cninfo: #深圳互动易
     website: 'cninfo'
     class: 'CrawlCninfo'
     freq: [] #默认10, 15
     trigger: true
-    trigger_part: ['title']
+    trigger_part: ['content']
 
 group2:
 
@@ -37,4 +37,4 @@ group2:
     class: 'Crawl36kr'
     freq: [] #默认10, 15
     trigger: true
-    trigger_part: ['title']
+    trigger_part: ['title', 'content']
