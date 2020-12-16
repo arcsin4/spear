@@ -115,12 +115,12 @@ class CrawlCs(BaseCrawlRequest):
         status_code, response = self.get(url=url, get_params={})
 
         if status_code == 200:
-            system_log.debug('runCrawl success [{}] {}'.format(status_code, url))
+            system_log.debug('{} runCrawl success [{}] {}'.format(self._website, status_code, url))
 
             soup_detail = BeautifulSoup(response , 'lxml')
 
             content = '<br />'.join([x.get_text(separator=' ', strip=True).strip() for x in soup_detail.find(name='article').find(name='section').find_all(name='p')])
         else:
-            system_log.error('runCrawl failed [{}] {}'.format(status_code, url))
+            system_log.error('{} runCrawl failed [{}] {}'.format(self._website, status_code, url))
 
         return content
