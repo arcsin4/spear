@@ -2,6 +2,7 @@
 import yaml
 import os
 import copy
+import time
 
 class Environment(object):
 
@@ -9,6 +10,7 @@ class Environment(object):
     _env_conf = None
     _crawl_conf = None
 
+    _start_time = None
     _crawler_status = None
     _crawler_status_frame = {
         'last_run': 0,
@@ -29,6 +31,7 @@ class Environment(object):
     def __init__(self):
 
         self._crawler_status = {}
+        self._start_time = time.time()
         pass
 
     @property
@@ -50,6 +53,10 @@ class Environment(object):
         if self._crawl_conf is None:
             self.loadCrawlCfg()
         return self._crawl_conf
+
+    @property
+    def start_time(self):
+        return self._start_time
 
     @property
     def crawler_status(self):

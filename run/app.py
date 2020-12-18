@@ -70,13 +70,13 @@ def threadCrawlWorker(**kw):
 
             try:
                 cls.run()
-                env.crawler_status[crawl_website]['last_run'] = time.time()
+                env.crawler_status[crawl_website]['last_run'] = int(time.time())
                 env.crawler_status[crawl_website]['run_counts'] = env.crawler_status[crawl_website]['run_counts'] + 1
             except Exception as ex:
                 system_log.error('crawl run error: {} {}'.format(ex, str(traceback.format_exc())))
                 continue
 
-        time.sleep(random.randint(3,5))
+        time.sleep(random.randint(1,3))
 
         monitor_msg = {
             'type':'alive',
@@ -212,27 +212,32 @@ def threadMonitorWorker():
             system_log.error('operation monitor task queue error:{}'.format(ex))
             #raise
 
-def threadEnvWorker():
-    system_log.info('env线程[{}] 启动'.format(threading.current_thread().name))
+def mainEnvWorker():
 
-    while True:
-        try:
-            env.setEventKeywords(item_data_store.getEventKeywords())
-        except Exception as ex:
-            system_log.error('refresh env error:{}'.format(ex))
-            #raise
+    rs = item_data_store.getRunningStatus()
+    if 'run_switch' in rs and int(rs['run_switch']) == -1:
+        return False
 
-        monitor_msg = {
-            'type':'alive',
-            'thread_type': 'env',
-            'thread_name': threading.current_thread().name,
-            'time': time.time(),
-        }
-        env.monitor_task_queue.put(json.dumps(monitor_msg))
+    try:
+        env.setEventKeywords(item_data_store.getEventKeywords())
+    except Exception as ex:
+        system_log.error('refresh env error:{}'.format(ex))
+        #raise
 
-        system_log.debug('env crawler status {}:'.format(env.crawler_status))
+    system_log.debug('env crawler status {}:'.format(env.crawler_status))
 
-        time.sleep(30)
+    data = [
+        ['start_time', int(env.start_time)],
+        ['env', json.dumps(env.env_conf)],
+        ['event_keywords', json.dumps(env.event_keywords)],
+        ['websites', json.dumps(env.websites)],
+        ['crawler_status', json.dumps(env.crawler_status)],
+    ]
+
+    item_data_store.saveRunningStatus(data)
+
+    return True
+
 
 @click.group()
 @click.help_option('-h', '--help')
@@ -265,10 +270,10 @@ def runCrawl(log_level='info'):
     notify_t.start()
     threads['notifier'] = notify_t
 
-    env_t = threading.Thread(target=threadEnvWorker, name='env')
-    env_t.setDaemon(True)
-    env_t.start()
-    threads['env'] = env_t
+    # env_t = threading.Thread(target=threadEnvWorker, name='env')
+    # env_t.setDaemon(True)
+    # env_t.start()
+    # threads['env'] = env_t
 
     for crawl_group_name, crawl_group_conf in env.crawl_conf.items():
         t = threading.Thread(target=threadCrawlWorker, name=crawl_group_name, kwargs=crawl_group_conf)
@@ -277,11 +282,19 @@ def runCrawl(log_level='info'):
 
         threads['crawlers'][crawl_group_name] = t
 
-
     env.setThreads(threads)
 
+    RunningStatusData = [
+        ['run_switch', 1],
+    ]
+    item_data_store.saveRunningStatus(RunningStatusData)
+
     while True:
-        time.sleep(59)
+        if not mainEnvWorker() :
+            system_log.warn('get stop signal! break while true!')
+            break
+
+        time.sleep(10)
 
 
 if __name__ == '__main__':

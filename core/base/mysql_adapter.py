@@ -146,7 +146,6 @@ class MysqlAdapter(object):
         assert isinstance(values, list) and len(values) > 0
         assert isinstance(columns_updt, list) and len(columns_updt) > 0
 
-
         sql_column = ",".join(["`"+pymysql.escape_string(str(k))+"`" for k in columns])
 
         sql_values = ",".join(["(" + ",".join(["%s" for k in c]) + ")" for c in values])

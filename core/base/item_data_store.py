@@ -24,7 +24,7 @@ class ItemDataStore(object):
         if len(res) > 0:
             return {r['website']: r['website_name'] for r in res}
 
-        return []
+        return {}
 
     #获取关键字
     def getEventKeywords(self):
@@ -68,6 +68,30 @@ class ItemDataStore(object):
 
         return self._mysql_adapter.insertOne( sql_database_name = db_name, sql_table_name = table_name, columns = columns, values = data)
 
+
+    #保存运行状态
+    def saveRunningStatus(self, data):
+
+        db_name = self._db_name
+
+        columns = ['indicator','content']
+        columns_updt = ['content']
+
+        table_name = 'running_status'
+
+        self._mysql_adapter.insertUpdate( sql_database_name = db_name, sql_table_name = table_name, columns = columns, values=data, columns_updt=columns_updt)
+
+    #获取运行状态
+    def getRunningStatus(self):
+
+        db_name = self._db_name
+        sql = """SELECT * FROM `running_status` WHERE 1=1 """
+        res = self._mysql_adapter.fetch(sql_database_name=db_name, sql_statement=sql, sql_data=None)
+
+        if len(res) > 0:
+            return {r['indicator']: r['content'] for r in res}
+
+        return {}
 
     #删除记录
     def cleanData(self, expire_time=0):

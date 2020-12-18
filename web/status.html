@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <title>crawl running status</title>
+    <link rel="stylesheet" href="js/layui/css/layui.css" media="all">
+    <script src="js/jquery-3.4.1.min.js" type="text/javascript" charset="utf-8"></script>
+</head>
+
+<body >
+
+<!-- header -->
+<ul class="layui-nav layui-bg-black">
+    <li class="layui-nav-item"><a href="index.html">搜索爬虫结果</a></li>
+    <li class="layui-nav-item"><a href="bos_kw.html">关键字管理</a></li>
+    <li class="layui-nav-item layui-this"><a href="#">运行状态</a></li>
+</ul>
+<hr>
+
+<!-- content -->
+
+<div class="layui-fluid" >
+    <form class="layui-form" action="" lay-filter="index_form">
+    <div class="layui-row layui-col-space10" >
+        <div class="layui-col-md4" name='start_time_div' id='start_time_div'></div>
+        <div class="layui-col-md4" >
+            <button type="submit" class="layui-btn layui-btn-danger" lay-submit="" lay-filter="restart_service" id="restart_service"><i class="layui-icon layui-icon-console"></i>重启服务</button>
+        </div>
+    </div>
+    </form>
+
+    <hr class="layui-bg-green" />
+    <div class="layui-row layui-col-space10">
+        <div class="layui-col-md12" ><blockquote class="layui-elem-quote">站点抓取状态</blockquote></div>
+        <div class="layui-col-md12" >
+            <table id="crawler_status_table" lay-filter="crawler_status_table"></table>
+        </div>
+    </div>
+
+    <hr class="layui-bg-green" />
+    <div class="layui-row layui-col-space10" >
+        <div class="layui-col-md12" name='event_keywords_div' id='event_keywords_div'></div>
+    </div>
+
+    <hr class="layui-bg-green" />
+    <div class="layui-row layui-col-space10">
+        <div class="layui-col-md12" ><blockquote class="layui-elem-quote">环境变量</blockquote></div>
+        <div class="layui-col-md12" >
+            <table id="env_table" lay-filter="env_table"></table>
+        </div>
+    </div>
+
+</div>
+
+<!-- javascript -->
+<script src="js/layui/layui.js?v="></script>
+<script>
+layui.config({
+    version: 1 //为了更新 js 缓存，可忽略
+});
+
+//JavaScript代码区域
+layui.use(['util', 'form', 'element', 'table', 'laydate', 'layer', 'upload'], function(){
+    var element = layui.element;
+    var layer = layui.layer;
+    var form = layui.form;
+    var table = layui.table;
+    var upload = layui.upload;
+    var laydate = layui.laydate;
+    var util = layui.util;
+
+    var $ = layui.$; //重点处
+
+    function restartservice(){
+
+        data = {}
+        data['action'] = 'set_switch_off'
+        $.post(
+            "/index.php"
+            ,data
+            ,function(rtn){
+                if(rtn.result == "Y"){
+                    layer.msg("重启请求成功", {time: 2000});
+                }else{
+                    layer.msg("重启请求失败", {time: 2000});
+                }
+            }
+            ,"json"
+        );
+        return false;
+    }
+
+    //监听提交
+    form.on('submit(restart_service)', function(data){
+
+        //eg2
+        layer.confirm('确认重启服务吗？'
+            ,{
+            title: false
+            ,shade: 0.8
+            ,id: 'layer_restart_service' //设定一个id，防止重复弹出
+            ,btnAlign: 'c'
+            ,btn: ['是', '否']
+            ,yes: function(index, layero){
+                //按钮【按钮一】的回调
+                restartservice();
+            }
+            ,btn2: function(index, layero){
+                //按钮【按钮二】的回调
+                //return false 开启该代码可禁止点击该按钮关闭
+                layer.close(index);
+            }
+            ,cancel: function(){
+                //右上角关闭回调
+                //return false 开启该代码可禁止点击该按钮关闭
+            }
+        });
+        return false;
+    });
+
+    var crawler_status_table = table.render({
+        elem: '#crawler_status_table'
+        ,id: 'crawler_status_table'
+        //,toolbar: true
+        //,defaultToolbar: false//['exports']
+        ,title: '站点抓取状态信息表'
+        ,text: {
+            none: '暂无数据'
+        }
+        ,totalRow: false
+        //,cellMinWidth: 60 //全局定义常规单元格的最小宽度，layui 2.2.1 新增
+        //,height: 'full-45'
+        ,cols: [[
+            {field:'website_name', width: 120, title: '站点', align: 'left'}
+            ,{field:'last_run', minWidth: 140, title: '最新抓取时间', align: 'center'}
+            ,{field:'run_counts', minWidth: 100, title: '累计抓取次数', align: 'right'}
+            ,{field:'freq', minWidth: 200, title: '平均抓取信息间隔【n秒1次】', align: 'right'}
+            ,{field:'trigger', minWidth: 150, title: '是否触发关键字推送', align: 'center', templet: function(d){
+                if(d.trigger == true){
+                    return '<span class="layui-badge">是</span>'
+                }
+                else{
+                    return '<span class="layui-badge layui-bg-gray">否</span>'
+                }
+            }}
+            ,{field:'trigger_part', minWidth: 150, title: '触发关键字的部分', align: 'center', templet: function(d){
+                rtn = '';
+
+                $.each(d.trigger_part,function(n, v) {
+                    rtn += '<span class="layui-badge">'+v+'</span>&nbsp;&nbsp;';
+                });
+
+                return rtn
+            }}
+        ]]
+        ,data: {}
+        ,size: 'sm'
+        ,page: false
+        ,limits: [10, 30, 50, 100]
+        ,limit: 30 //每页默认显示的数量
+        ,loading: false
+    });
+
+    function renderCrawlerStatusTable(table_data)
+    {
+        table.reload('crawler_status_table', {data: table_data});
+        //执行表格“尺寸结构”的重置，一般写在对应的事件中
+        table.resize('crawler_status_table');
+    }
+
+    var env_table = table.render({
+        elem: '#env_table'
+        ,id: 'env_table'
+        //,toolbar: true
+        //,defaultToolbar: false//['exports']
+        ,title: '环境变量信息表'
+        ,text: {
+            none: '暂无数据'
+        }
+        ,totalRow: false
+        //,cellMinWidth: 60 //全局定义常规单元格的最小宽度，layui 2.2.1 新增
+        //,height: 'full-45'
+        ,cols: [[
+            {field:'key', width: 120, title: '字段名称', align: 'left'}
+            ,{field:'desc', minWidth: 200, title: '说明', align: 'left'}
+            ,{field:'value', minWidth: 100, title: '设定值', align: 'left'}
+        ]]
+        ,data: {}
+        ,size: 'sm'
+        ,page: false
+        ,limits: [10, 30, 50, 100]
+        ,limit: 30 //每页默认显示的数量
+        ,loading: false
+    });
+
+    function renderEnvTable(table_data)
+    {
+        table.reload('env_table', {data: table_data});
+        //执行表格“尺寸结构”的重置，一般写在对应的事件中
+        table.resize('env_table');
+    }
+
+    function refreshStatus()
+    {
+        //layer.msg("refresh!", {time: 1000});
+        $.post(
+            "/index.php"
+            ,{'action':'get_running_status'}
+            ,function(rtn){
+                if(rtn.result=='Y')
+                {
+                    data = rtn.data
+
+                    $("#start_time_div").html('<blockquote class="layui-elem-quote">运行开始时间：'+data.start_time+'</blockquote>');
+
+                    $("#event_keywords_div").html('<blockquote class="layui-elem-quote">触发的关键字</blockquote>');
+
+                    $.each(data.event_keywords,function(n, v) {
+
+                        $("#event_keywords_div").append('<button type="button" class="layui-btn">'+v+'</button>');
+
+                    });
+
+                    renderCrawlerStatusTable(data.crawler_status)
+                    renderEnvTable(data.env)
+
+                }
+            }
+            ,'json'
+        );
+    }
+
+    $(function(){
+        refreshStatus();
+        setInterval(function(){
+            refreshStatus();
+        }, 3000);
+    });
+});
+
+
+</script>
+</body>
+</html>

@@ -14,6 +14,8 @@ $action_accept_arr = array(
     'get_keywords',
     'create_keyword',
     'delete_keyword',
+    'get_running_status',
+    'set_switch_off',
 );
 
 if (!in_array($action, $action_accept_arr) ){
@@ -48,7 +50,7 @@ function search_crawl_result()
     $search_word = @$_REQUEST['search_word'];
 
     $conn = db();
-    $sql = "SELECT * FROM `sxy`.`crawl_result`
+    $sql = "SELECT * FROM `crawl_result`
         WHERE 1=1 ";
 
     if(isset($websites) && is_array($websites) && count($websites)>0)
@@ -103,7 +105,7 @@ function search_crawl_result()
 function self_get_websites()
 {
     $conn = db();
-    $sql = "SELECT * FROM `sxy`.`website_list`
+    $sql = "SELECT * FROM `website_list`
         WHERE 1=1 ORDER BY create_time DESC ";
 
     $cmd = $conn->prepare($sql);
@@ -133,7 +135,7 @@ function get_websites()
 function self_get_keywords()
 {
     $conn = db();
-    $sql = "SELECT * FROM `sxy`.`event_keywords`
+    $sql = "SELECT * FROM `event_keywords`
         WHERE 1=1 ";
 
     $cmd = $conn->prepare($sql);
@@ -176,7 +178,7 @@ function create_keyword()
 
     $conn = db();
 
-    $sql = "INSERT IGNORE INTO `sxy`.`event_keywords` SET `kw`=:kw ;";
+    $sql = "INSERT IGNORE INTO `event_keywords` SET `kw`=:kw ;";
     $cmd = $conn->prepare($sql);
     $cmd->bindValue(":kw", $kw_name);
 
@@ -205,7 +207,7 @@ function delete_keyword()
     $rtn = array('result'=>'Y');
 
     $conn = db();
-    $sql = "DELETE FROM `sxy`.`event_keywords`
+    $sql = "DELETE FROM `event_keywords`
         WHERE kw in ('' ";
 
     foreach($keywords as $w){
@@ -225,4 +227,105 @@ function delete_keyword()
 
     show_result($rtn);
 
+}
+
+
+function set_switch_off()
+{
+    $rtn = array('result'=>'N');
+
+    $conn = db();
+
+    $sql = "INSERT INTO `running_status` SET `indicator`='run_switch',`content`='-1' ON DUPLICATE KEY UPDATE `content`=values(`content`) ;";
+    $cmd = $conn->prepare($sql);
+
+    if($cmd->execute())
+    {
+        $rtn = array('result'=>'Y');
+    }
+
+    show_result($rtn);
+}
+
+
+function get_running_status()
+{
+    $rtn = array('result'=>'Y', 'data'=>array());
+
+    $conn = db();
+    $sql = "SELECT * FROM `running_status`
+        WHERE `indicator` <> 'run_switch' ";
+
+    $cmd = $conn->prepare($sql);
+
+    if ($cmd->execute()) {
+        $res = $cmd->fetchAll();
+
+        $start_time = 0;
+        foreach($res as $value)
+        {
+            if($value['indicator'] == 'start_time'){
+                $start_time = json_decode($value['content'], true);
+            }
+        }
+
+        foreach($res as $value)
+        {
+            $k = $value['indicator'];
+            $v = json_decode($value['content'], true);
+
+            if($k == 'start_time'){
+                $v = date('Y年m月d日 H:i:s', $v);
+            }
+            elseif($k == 'crawler_status'){
+                $ws = self_get_websites();
+
+                $vlist = array();
+                foreach($v as $kk=>$vv){
+                    $vv['website'] = $kk;
+                    $vv['website_name'] = $kk;
+
+                    if( in_array($kk,array_keys($ws))){
+                        $vv['website_name'] = $ws[$kk];
+                    }
+
+                    $vv['freq'] = round((time() - $start_time)/$vv['run_counts'], 2);
+
+
+                    foreach($vv['trigger_part'] as $tp_k=>$tp){
+                        if($tp == 'title'){
+                            $vv['trigger_part'][$tp_k] = '标题';
+                        }
+                        elseif($tp == 'content'){
+                            $vv['trigger_part'][$tp_k] = '正文/摘要';
+                        }
+                    }
+
+                    $vv['last_run'] = date('Y年m月d日 H:i:s', $vv['last_run']);
+                    $vlist[] = $vv;
+                }
+
+                $v = $vlist;
+            }
+            elseif($k == 'env'){
+
+                $vlist = array();
+                foreach($v as $kk=>$vv){
+                    $vv['key'] = $kk;
+
+                    if( in_array($kk, array('default_crawl_freq', 'trigger_notify_period'))){
+                        $vv['value'] = @$vv['value'][0].' ~ '.@$vv['value'][1];
+                    }
+
+                    $vlist[] = $vv;
+                }
+
+                $v = $vlist;
+            }
+
+            $rtn['data'][$k] = $v;
+        }
+    }
+
+    show_result($rtn);
 }
