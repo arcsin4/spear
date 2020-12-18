@@ -134,11 +134,11 @@ layui.use(['util', 'form', 'element', 'table', 'laydate', 'layer', 'upload'], fu
         ,cols: [[
             {field:'website_name', width: 120, title: '站点', align: 'left'}
             ,{field:'last_run', minWidth: 140, title: '最新抓取时间', align: 'center'}
-            ,{field:'run_counts', minWidth: 100, title: '累计抓取次数', align: 'right'}
-            ,{field:'freq', minWidth: 200, title: '平均抓取信息间隔【n秒1次】', align: 'right'}
-            ,{field:'trigger', minWidth: 150, title: '是否触发关键字推送', align: 'center', templet: function(d){
+            ,{field:'run_counts', minWidth: 60, title: '累计抓取次数', align: 'right'}
+            ,{field:'freq', minWidth: 60, title: '平均间隔n秒抓取一次', align: 'right'}
+            ,{field:'trigger', minWidth: 60, title: '是否触发关键字推送', align: 'center', templet: function(d){
                 if(d.trigger == true){
-                    return '<span class="layui-badge">是</span>'
+                    return '<span class="layui-badge layui-bg-cyan">是</span>'
                 }
                 else{
                     return '<span class="layui-badge layui-bg-gray">否</span>'
@@ -148,10 +148,25 @@ layui.use(['util', 'form', 'element', 'table', 'laydate', 'layer', 'upload'], fu
                 rtn = '';
 
                 $.each(d.trigger_part,function(n, v) {
-                    rtn += '<span class="layui-badge">'+v+'</span>&nbsp;&nbsp;';
+                    rtn += '<span class="layui-badge layui-bg-cyan">'+v+'</span>&nbsp;&nbsp;';
                 });
 
                 return rtn
+            }}
+            ,{field:'status', minWidth: 100, title: '状态', align: 'center', templet: function(d){
+
+                if(d.status == 'normal'){
+                    return '<span class="layui-badge layui-bg-green">'+d.status_name+'</span>';
+                }
+                else if(d.status == 'warning'){
+                    return '<span class="layui-badge layui-bg-orange">'+d.status_name+'</span>';
+                }
+                else if(d.status == 'error'){
+                    return '<span class="layui-badge">'+d.status_name+'</span>';
+                }
+                else{
+                    return '<span class="layui-badge layui-bg-gray">未知</span>'
+                }
             }}
         ]]
         ,data: {}
@@ -182,7 +197,7 @@ layui.use(['util', 'form', 'element', 'table', 'laydate', 'layer', 'upload'], fu
         //,cellMinWidth: 60 //全局定义常规单元格的最小宽度，layui 2.2.1 新增
         //,height: 'full-45'
         ,cols: [[
-            {field:'key', width: 120, title: '字段名称', align: 'left'}
+            {field:'key', minWidth: 180, title: '字段名称', align: 'left'}
             ,{field:'desc', minWidth: 200, title: '说明', align: 'left'}
             ,{field:'value', minWidth: 100, title: '设定值', align: 'left'}
         ]]

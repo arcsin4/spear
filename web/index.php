@@ -289,8 +289,7 @@ function get_running_status()
                         $vv['website_name'] = $ws[$kk];
                     }
 
-                    $vv['freq'] = round((time() - $start_time)/$vv['run_counts'], 2);
-
+                    $vv['freq'] = $vv['run_counts']>0 ? round(($vv['last_run'] - $start_time)/$vv['run_counts'], 2) : 0;
 
                     foreach($vv['trigger_part'] as $tp_k=>$tp){
                         if($tp == 'title'){
@@ -301,7 +300,19 @@ function get_running_status()
                         }
                     }
 
+                    $vv['status'] = 'normal';
+                    $vv['status_name'] = '正常';
+                    if((time() - $vv['last_run']) >= 600){
+                        $vv['status'] = 'error';
+                        $vv['status_name'] = '异常（累计'.(time() - $vv['last_run']).'秒未运行）';
+                    }
+                    elseif((time() - $vv['last_run']) >= 60){
+                        $vv['status'] = 'warning';
+                        $vv['status_name'] = '异常（累计'.(time() - $vv['last_run']).'秒未运行）';
+                    }
+
                     $vv['last_run'] = date('Y年m月d日 H:i:s', $vv['last_run']);
+
                     $vlist[] = $vv;
                 }
 
