@@ -16,6 +16,7 @@ $action_accept_arr = array(
     'delete_keyword',
     'get_running_status',
     'set_switch_off',
+    'search_trigger_msg',
 );
 
 if (!in_array($action, $action_accept_arr) ){
@@ -269,6 +270,8 @@ function get_running_status()
             }
         }
 
+        $max_last_run = 0;
+
         foreach($res as $value)
         {
             $k = $value['indicator'];
@@ -302,16 +305,27 @@ function get_running_status()
 
                     $vv['status'] = 'normal';
                     $vv['status_name'] = '正常';
-                    if((time() - $vv['last_run']) >= 600){
+                    if($vv['last_run'] <= 0){
                         $vv['status'] = 'error';
-                        $vv['status_name'] = '异常（累计'.(time() - $vv['last_run']).'秒未运行）';
+                        $vv['status_name'] = '异常（未运行/初次运行未结束）';
+                    }
+                    elseif((time() - $vv['last_run']) >= 600){
+                        $vv['status'] = 'error';
+                        $vv['status_name'] = '异常（'.self_calc_time(time() - $vv['last_run']).'未运行）';
                     }
                     elseif((time() - $vv['last_run']) >= 60){
                         $vv['status'] = 'warning';
-                        $vv['status_name'] = '异常（累计'.(time() - $vv['last_run']).'秒未运行）';
+                        $vv['status_name'] = '异常（'.self_calc_time(time() - $vv['last_run']).'未运行）';
                     }
 
-                    $vv['last_run'] = date('Y年m月d日 H:i:s', $vv['last_run']);
+                    $max_last_run = $vv['last_run'] > $max_last_run ? $vv['last_run'] : $max_last_run;
+
+                    if($vv['last_run'] <= 0){
+                        $vv['last_run'] = '--';
+                    }
+                    else{
+                        $vv['last_run'] = date('Y年m月d日 H:i:s', $vv['last_run']);
+                    }
 
                     $vlist[] = $vv;
                 }
@@ -336,7 +350,73 @@ function get_running_status()
 
             $rtn['data'][$k] = $v;
         }
+
     }
 
+    show_result($rtn);
+}
+
+function self_calc_time($seconds){
+    $rtn = "";
+    if($seconds >= 86400){
+        $rtn .= intval($seconds/86400)."天";
+    }
+    $seconds = $seconds%86400;
+
+    if($seconds >= 3600){
+        $rtn .= intval($seconds/3600)."小时";
+    }
+    $seconds = $seconds%3600;
+
+    if($seconds >= 60){
+        $rtn .= intval($seconds/60)."分";
+    }
+    $seconds = $seconds%60;
+
+    if($seconds >= 0){
+        $rtn .= intval($seconds)."秒";
+    }
+
+    return $rtn;
+}
+
+
+function search_trigger_msg()
+{
+    $rtn = array('result'=>'Y', 'data'=>array());
+
+    $search_word = @$_REQUEST['search_word'];
+
+    $conn = db();
+    $sql = "SELECT * FROM `trigger_msg`
+        WHERE 1=1 ";
+
+    if(@$search_word != ""){
+        $sql .= " AND trigger_words like ? ";
+    }
+
+    $sql .= " ORDER BY news_time DESC, pid DESC ";
+
+    $cmd = $conn->prepare($sql);
+
+    $n = 1;
+    if(@$search_word != ""){
+        $cmd->bindValue($n, '%'.$search_word.'%');
+        $n = $n + 1;
+    }
+
+    if ($cmd->execute()) {
+        $rtn['data'] = $cmd->fetchAll();
+
+        $res_ws = self_get_websites();
+
+        foreach($rtn['data'] as $k=>$v)
+        {
+            $rtn['data'][$k]['website_name'] = @$res_ws[$rtn['data'][$k]['website']] != "" ? $res_ws[$rtn['data'][$k]['website']] : $rtn['data'][$k]['website'];
+            $rtn['data'][$k]['create_time'] = date('Y-m-d H:i:s', $v['create_time']);
+            $rtn['data'][$k]['news_time'] = date('Y-m-d H:i:s', $v['news_time']);
+        }
+
+    }
     show_result($rtn);
 }

@@ -238,7 +238,6 @@ def mainEnvWorker():
 
     return True
 
-
 @click.group()
 @click.help_option('-h', '--help')
 def cli():

@@ -25,6 +25,9 @@ class EventTrigger(object):
 
         now_datetime = datetime.datetime.now()
 
+        if now_datetime.weekday() >= 5:
+            return
+
         notify_start = 9
         notify_end = 15
 
@@ -49,7 +52,7 @@ class EventTrigger(object):
             system_log.error("get env_conf trigger_msg_expired failed {}".format(env.env_conf))
             pass
 
-        if int(news_time) - time.time() > expired_seconds:
+        if (time.time() - int(news_time))  > expired_seconds:
             system_log.debug('runNotify msg droped news_time:{} now_time:{}'.format(news_time, now_time))
             return False
 
