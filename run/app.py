@@ -25,6 +25,7 @@ from core.logger import system_log
 from core.crawler import *
 from core.base.item_data_store import ItemDataStore
 from core.event.event_trigger import event_trigger
+from core.event.event_notify import event_notify
 
 item_data_store = ItemDataStore()
 env.setEventKeywords(item_data_store.getEventKeywords())
@@ -170,7 +171,7 @@ def threadNotifyWorker():
 
                 msg = json.loads(msg)
 
-                event_trigger.runNotify(**msg)
+                event_notify.runNotify(**msg)
 
                 #time.sleep(1)
             except queue.Empty as ex:
