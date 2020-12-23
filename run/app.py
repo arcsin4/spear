@@ -249,7 +249,7 @@ def cli():
 @cli.command()
 @click.help_option('-h', '--help')
 @click.option('-l', '--log-level', 'log_level', type=click.Choice(['debug', 'info', 'warning', 'error']), default='debug', required=False, help='日志级别')
-def runCrawl(log_level='info'):
+def runCrawl(log_level='debug'):
     '''运行爬虫'''
 
     system_log.level = getattr(logbook, log_level.upper())

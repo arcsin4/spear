@@ -139,4 +139,4 @@ dmypy.json
 .metadata
 
 test*
-*.log.*
+log/*.log.*
