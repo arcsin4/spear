@@ -94,7 +94,15 @@ layui.use(['util', 'form', 'element', 'table', 'laydate', 'layer', 'upload'], fu
         ]]
         ,data: {}
         ,size: 'sm'
-        ,page: true
+        ,url: '/index.php'
+        ,method: 'post'
+        ,where:{
+            action: 'search_crawl_result'
+        }
+        //,page: true
+        ,page: {
+            curr: 1 //重新从第 1 页开始
+        }
         ,limits: [10, 30, 50, 100]
         ,limit: 30 //每页默认显示的数量
         ,loading: false
@@ -143,12 +151,16 @@ layui.use(['util', 'form', 'element', 'table', 'laydate', 'layer', 'upload'], fu
     }
 
     refreshWebsites();
-    refreshResultTable();
+    //refreshResultTable();
 
     //监听提交
     form.on('submit(search_confirm)', function(data){
+
         data = data.field
         data['action'] = 'search_crawl_result'
+
+        table.reload('result_table', {where: data, page:{curr: 1}});
+        return false;
 
         //layer.alert(JSON.stringify(data));
 

@@ -49,27 +49,53 @@ function search_crawl_result()
 
     $websites = @$_REQUEST['websites'];
     $search_word = @$_REQUEST['search_word'];
+    $page = @$_REQUEST['page'];
+    $limit = @$_REQUEST['limit'];
+
+    if(@intval($page) <= 0){
+        $page = 1;
+    }
+    else{
+        $page = intval($page);
+    }
+
+    if(@intval($limit) <= 0){
+        $limit = 30;
+    }
+    else{
+        $limit = intval($limit);
+    }
+
+    $offset = ($page-1)*$limit;
 
     $conn = db();
-    $sql = "SELECT * FROM `crawl_result`
+    $sql_head = "SELECT * FROM `crawl_result`
         WHERE 1=1 ";
+    $sql_head_count = "SELECT count(1) FROM `crawl_result`
+        WHERE 1=1 ";
+
+    $sql_stat = "";
+    $sql = "";
+    $sql_count = "";
 
     if(isset($websites) && is_array($websites) && count($websites)>0)
     {
-        $sql .= " AND website in ('0'";
+        $sql_stat .= " AND website in ('0'";
         foreach($websites as $w){
-            $sql .= ", ?";
+            $sql_stat .= ", ?";
         }
-        $sql .= ")";
+        $sql_stat .= ")";
     }
 
     if(@$search_word != ""){
-        $sql .= " AND (title like ? or content like ?) ";
+        $sql_stat .= " AND (title like ? or content like ?) ";
     }
 
-    $sql .= " ORDER BY news_time DESC, pid DESC ";
+    $sql = $sql_head.$sql_stat." ORDER BY news_time DESC, pid DESC LIMIT $limit OFFSET $offset";
 
-    $cmd = $conn->prepare($sql);
+    $sql_count = $sql_head_count.$sql_stat;
+
+    $cmd = $conn->prepare($sql_count);
 
     $n = 1;
     if(isset($websites) && is_array($websites) && count($websites)>0)
@@ -88,6 +114,42 @@ function search_crawl_result()
     }
 
     if ($cmd->execute()) {
+        $res_count = $cmd->fetchColumn();
+
+        if($res_count <= 0){
+            $rtn['code'] = 0;
+            $rtn['msg'] = '';
+            $rtn['count'] = 0;
+            $rtn['data'] = array();
+
+            show_result($rtn);
+        }
+
+
+        $rtn['code'] = 0;
+        $rtn['msg'] = '';
+        $rtn['count'] = intval($res_count);
+
+        $cmd = $conn->prepare($sql);
+
+        $n = 1;
+        if(isset($websites) && is_array($websites) && count($websites)>0)
+        {
+            foreach($websites as $w){
+                $cmd->bindValue($n, $w);
+                $n = $n + 1;
+            }
+        }
+
+        if(@$search_word != ""){
+            $cmd->bindValue($n, '%'.$search_word.'%');
+            $n = $n + 1;
+            $cmd->bindValue($n, '%'.$search_word.'%');
+            $n = $n + 1;
+        }
+
+        $cmd->execute();
+
         $rtn['data'] = $cmd->fetchAll();
 
         $res_ws = self_get_websites();
