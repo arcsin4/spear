@@ -5,7 +5,7 @@ import datetime
 from core.env import env
 from core.logger import system_log
 
-from core.event.notify_dingding import NotifyDingding
+from core.event import NOTIFIERS
 
 class EventNotify(object):
 
@@ -13,9 +13,7 @@ class EventNotify(object):
 
     def __init__(self):
 
-        self._notifiers = {
-            'dingding': NotifyDingding,
-        }
+        self._notifiers = NOTIFIERS
 
     def runNotify(self, head_kws, title, content, origin='', jump_url='', news_time=0, **kw):
 

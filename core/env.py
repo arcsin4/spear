@@ -9,6 +9,7 @@ class Environment(object):
     _conf_dir = None
     _env_conf = None
     _crawl_conf = None
+    _notify_conf = None
 
     _start_time = None
     _crawler_status = None
@@ -53,6 +54,12 @@ class Environment(object):
         if self._crawl_conf is None:
             self.loadCrawlCfg()
         return self._crawl_conf
+
+    @property
+    def notify_conf(self):
+        if self._notify_conf is None:
+            self.loadNotifyCfg()
+        return self._notify_conf
 
     @property
     def start_time(self):
@@ -101,6 +108,12 @@ class Environment(object):
         self._crawl_conf = {}
         with open(self._conf_dir + '/crawl.yaml', 'r') as f:
             self._crawl_conf = yaml.load(f.read(), Loader=yaml.FullLoader)
+
+    def loadNotifyCfg(self):
+
+        self._notify_conf = {}
+        with open(self._conf_dir + '/notify.yaml', 'r') as f:
+            self._notify_conf = yaml.load(f.read(), Loader=yaml.FullLoader)
 
     def registCrawler(self, crawler_name, freq=[10, 15], trigger=True, trigger_part=[]):
         self._crawler_status[crawler_name] = copy.deepcopy(self._crawler_status_frame)

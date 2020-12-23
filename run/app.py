@@ -10,6 +10,7 @@ from core.env import env
 env.setConfDir(conf_dir = CONF_DIR)
 env.loadEnvCfg()
 env.loadCrawlCfg()
+env.loadNotifyCfg()
 
 import traceback
 import click
@@ -94,7 +95,7 @@ def threadTriggerWorker():
         try:
             try:
                 msg = env.trigger_task_queue.get(timeout=1)
-                system_log.debug('['+threading.current_thread().name+']: '+msg)
+                system_log.debug('['+threading.current_thread().name+']: {}'.format(msg))
 
                 msg_data = json.loads(msg)
 
@@ -143,13 +144,13 @@ def threadTriggerWorker():
             except queue.Empty as ex:
                 continue
             except Exception as ex:
-                system_log.error('get trigger task queue error:{}'.format(ex))
+                system_log.error('get trigger task queue error:  {} {}'.format(ex, str(traceback.format_exc())))
                 #raise
             finally:
                 pass
                 #env.trigger_task_queue.task_done()
         except Exception as ex:
-            system_log.error('operation trigger task queue error:{}'.format(ex))
+            system_log.error('operation trigger task queue error:  {} {}'.format(ex, str(traceback.format_exc())))
             #raise
 
         monitor_msg = {
@@ -167,7 +168,7 @@ def threadNotifyWorker():
         try:
             try:
                 msg = env.notify_task_queue.get(timeout=1)
-                system_log.debug('['+threading.current_thread().name+']: '+msg)
+                system_log.debug('['+threading.current_thread().name+']: {}'.format(msg))
 
                 msg = json.loads(msg)
 
@@ -177,13 +178,13 @@ def threadNotifyWorker():
             except queue.Empty as ex:
                 continue
             except Exception as ex:
-                system_log.error('get notify task queue error:{}'.format(ex))
+                system_log.error('get notify task queue error: {} {}'.format(ex, str(traceback.format_exc())))
                 #raise
             finally:
                 pass
                 #env.notify_task_queue.task_done()
         except Exception as ex:
-            system_log.error('operation notify task queue error:{}'.format(ex))
+            system_log.error('operation notify task queue error: {} {}'.format(ex, str(traceback.format_exc())))
             #raise
 
         monitor_msg = {
@@ -201,7 +202,7 @@ def threadMonitorWorker():
         try:
             try:
                 msg = env.monitor_task_queue.get()
-                system_log.debug('['+threading.current_thread().name+']: '+msg)
+                system_log.debug('['+threading.current_thread().name+']: {}'.format(msg))
                 #time.sleep(1)
             except Exception as ex:
                 system_log.error('get monitor task queue error:{}'.format(ex))
@@ -247,7 +248,7 @@ def cli():
 
 @cli.command()
 @click.help_option('-h', '--help')
-@click.option('-l', '--log-level', 'log_level', type=click.Choice(['debug', 'info', 'warning', 'error']), default='info', required=False, help='日志级别')
+@click.option('-l', '--log-level', 'log_level', type=click.Choice(['debug', 'info', 'warning', 'error']), default='debug', required=False, help='日志级别')
 def runCrawl(log_level='info'):
     '''运行爬虫'''
 

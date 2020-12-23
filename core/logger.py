@@ -41,8 +41,8 @@ if not os.path.exists(LOG_DIR):
 
 
 # 日志打印到文件
-#log_file_debug = TimedRotatingFileHandler(os.path.join(LOG_DIR, '{}.log'.format('debug')), date_format='%Y-%m-%d', level=logbook.DEBUG, bubble=True, encoding='utf-8')
-#log_file_debug.formatter = log_formatter
+log_file_debug = TimedRotatingFileHandler(os.path.join(LOG_DIR, '{}.log'.format('debug')), date_format='%Y-%m-%d', level=logbook.DEBUG, bubble=True, encoding='utf-8')
+log_file_debug.formatter = log_formatter
 
 log_file_info = TimedRotatingFileHandler(os.path.join(LOG_DIR, '{}.log'.format('info')), date_format='%Y-%m-%d', level=logbook.INFO, bubble=True, encoding='utf-8')
 log_file_info.formatter = log_formatter
@@ -55,7 +55,7 @@ def init_logger(level=logbook.INFO):
 
     system_log = Logger("system_log")
     system_log.handlers = []
-    #system_log.handlers.append(log_file_debug)
+    system_log.handlers.append(log_file_debug)
     system_log.handlers.append(log_file_info)
     system_log.handlers.append(log_file_err)
     system_log.handlers.append(std_handler)

@@ -10,19 +10,23 @@ import hashlib
 import base64
 from urllib.parse import urlencode, quote_plus
 
+from core.env import env
+
 class NotifyDingding(object):
 
     _url = 'https://oapi.dingtalk.com/robot/send'
 
-    _access_token = 'e68ef31ec89e171e46197fd6a37b7f90c4e3e56cef84451c30169b155a164116'
+    _access_token = None
 
-    _secret = 'SEC40d835c7ae4eed82b01038256e16a7e6ac612122b133ebfdc072a1331a9b822f'
+    _secret = None
 
     def __init__(self):
 
         super(NotifyDingding, self).__init__()
 
-    @classmethod
+        self._access_token = env.notify_conf['dingding']['access_token']
+        self._secret = env.notify_conf['dingding']['secret']
+
     def notify(self, head_kws=[], title='', content='', origin='', jump_url='', timestr='', send_count=1):
 
         timestamp, sign = self._generateSign()
@@ -86,9 +90,7 @@ class NotifyDingding(object):
         system_log.debug('dingding notify failed {}'.format(response.status_code))
         return False
 
-    @classmethod
     def _generateSign(self):
-
         timestamp = str(round(time.time() * 1000))
         secret = self._secret
         secret_enc = secret.encode('utf-8')
@@ -98,3 +100,5 @@ class NotifyDingding(object):
         sign = quote_plus(base64.b64encode(hmac_code))
 
         return timestamp, sign
+
+notify_dingding = NotifyDingding()
