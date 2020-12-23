@@ -33,7 +33,7 @@ function db() {
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
     );
 
-    return new PDO("mysql:host=127.0.0.1;dbname=sxy;port=3306;", 'root', 'root', $options_arr);
+    return new PDO("mysql:host=127.0.0.1;dbname=sxy;port=3306;", 'sxy', 'Win171_!&!', $options_arr);
 }
 
 function show_result($rtn, $json_flag=true)
