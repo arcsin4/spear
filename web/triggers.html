@@ -69,6 +69,7 @@ layui.use(['util', 'form', 'element', 'table', 'laydate', 'layer', 'upload'], fu
         ,text: {
             none: '暂无数据'
         }
+        ,even: true //开启隔行背景
         ,totalRow: false
         //,cellMinWidth: 60 //全局定义常规单元格的最小宽度，layui 2.2.1 新增
         //,height: 'full-45'
@@ -76,7 +77,7 @@ layui.use(['util', 'form', 'element', 'table', 'laydate', 'layer', 'upload'], fu
             {field:'trigger_words', width: 120, title: '触发关键字', align: 'left'}
             ,{field:'website_name', width: 120, title: '站点', align: 'left'}
             ,{field:'title', minWidth: 150, title: '标题', align: 'left'}
-            ,{field:'content', minWidth: 400, title: '内容', align: 'left'}
+            ,{field:'content', minWidth: 400, title: '正文/摘要', align: 'left'}
             ,{field:'news_time', width: 150, title: '时间', align: 'center'}
             ,{field:'url', width: 80, title: '详情链接', align: 'center', templet: function(d){
                 if(d.jump_url != ""){

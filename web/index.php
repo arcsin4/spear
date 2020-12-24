@@ -82,7 +82,9 @@ function search_crawl_result()
     {
         $sql_stat .= " AND website in ('0'";
         foreach($websites as $w){
-            $sql_stat .= ", ?";
+            if(@$w != ""){
+                $sql_stat .= ", ?";
+            }
         }
         $sql_stat .= ")";
     }
@@ -101,8 +103,10 @@ function search_crawl_result()
     if(isset($websites) && is_array($websites) && count($websites)>0)
     {
         foreach($websites as $w){
-            $cmd->bindValue($n, $w);
-            $n = $n + 1;
+            if(@$w != ""){
+                $cmd->bindValue($n, $w);
+                $n = $n + 1;
+            }
         }
     }
 

@@ -22,7 +22,7 @@
 <!-- content -->
 
 <div class="layui-fluid" >
-    <form class="layui-form" action="search_crawl_result" lay-filter="index_form">
+    <form class="layui-form" action="search_crawl_result" lay-filter="index_form" id="index_form">
     <div class="layui-row layui-col-space10" >
         <div class="layui-col-md12" >
             <div class="layui-inline" name="search_websites_div" id="search_websites_div">
@@ -66,7 +66,7 @@ layui.use(['util', 'form', 'element', 'table', 'laydate', 'layer', 'upload'], fu
 
     var $ = layui.$; //重点处
 
-    var result_table = table.render({
+    var result_table_config = {
         elem: '#result_table'
         ,id: 'result_table'
         //,toolbar: true
@@ -75,13 +75,14 @@ layui.use(['util', 'form', 'element', 'table', 'laydate', 'layer', 'upload'], fu
         ,text: {
             none: '暂无数据'
         }
+        ,even: true //开启隔行背景
         ,totalRow: false
         //,cellMinWidth: 60 //全局定义常规单元格的最小宽度，layui 2.2.1 新增
         //,height: 'full-45'
         ,cols: [[
             {field:'website_name', width: 120, title: '站点', align: 'left'}
             ,{field:'title', minWidth: 150, title: '标题', align: 'left'}
-            ,{field:'content', minWidth: 400, title: '内容', align: 'left'}
+            ,{field:'content', minWidth: 400, title: '正文/摘要', align: 'left'}
             ,{field:'news_time', width: 150, title: '时间', align: 'center'}
             ,{field:'url', width: 80, title: '详情链接', align: 'center', templet: function(d){
                 if(d.url != ""){
@@ -106,29 +107,9 @@ layui.use(['util', 'form', 'element', 'table', 'laydate', 'layer', 'upload'], fu
         ,limits: [10, 30, 50, 100]
         ,limit: 30 //每页默认显示的数量
         ,loading: false
-    });
-
-    function renderResultTable(table_data)
-    {
-        table.reload('result_table', {data: table_data});
-        //执行表格“尺寸结构”的重置，一般写在对应的事件中
-        table.resize('result_table');
     }
 
-    function refreshResultTable(){
-
-        $.post(
-            "/index.php"
-            ,{'action':'search_crawl_result'}
-            ,function(rtn){
-                if(rtn.result=='Y'){
-                    renderResultTable(rtn.data);
-                }
-            }
-            ,'json'
-
-        );
-    }
+    table.render(result_table_config);
 
     function refreshWebsites()
     {
@@ -151,33 +132,18 @@ layui.use(['util', 'form', 'element', 'table', 'laydate', 'layer', 'upload'], fu
     }
 
     refreshWebsites();
-    //refreshResultTable();
 
     //监听提交
     form.on('submit(search_confirm)', function(data){
 
         data = data.field
         data['action'] = 'search_crawl_result'
-
-        table.reload('result_table', {where: data, page:{curr: 1}});
+        result_table_config.where = data;
+        table.render(result_table_config);
+        //table.reload('result_table', {where: data, page:{curr: 1}});
+        //layer.alert(JSON.stringify(result_table.config.where));
         return false;
 
-        //layer.alert(JSON.stringify(data));
-
-        //return false;
-        $.post(
-            "/index.php"
-            ,data
-            ,function(rtn){
-                if(rtn.result == "Y"){
-                    renderResultTable(rtn.data);
-                }else{
-                    layer.msg("搜索失败", {time: 2000});
-                }
-            }
-            ,"json"
-        );
-        return false;
     });
 
     //监听行双击事件
