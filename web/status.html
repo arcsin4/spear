@@ -41,7 +41,10 @@
 
     <hr class="layui-bg-green" />
     <div class="layui-row layui-col-space10" >
-        <div class="layui-col-md12" name='event_keywords_div' id='event_keywords_div'></div>
+        <div class="layui-col-md12"><blockquote class="layui-elem-quote">触发的关键字</blockquote></div>
+        <div class="layui-col-md12">
+            <div class="layui-btn-container" name='event_keywords_div' id='event_keywords_div'></div>
+        </div>
     </div>
 
     <hr class="layui-bg-green" />
@@ -230,11 +233,11 @@ layui.use(['util', 'form', 'element', 'table', 'laydate', 'layer', 'upload'], fu
 
                     $("#start_time_div").html('<blockquote class="layui-elem-quote">运行开始时间：'+data.start_time+'</blockquote>');
 
-                    $("#event_keywords_div").html('<blockquote class="layui-elem-quote">触发的关键字</blockquote>');
+                    $("#event_keywords_div").html('');
 
                     $.each(data.event_keywords,function(n, v) {
 
-                        $("#event_keywords_div").append('<button type="button" class="layui-btn">'+v+'</button>');
+                        $("#event_keywords_div").append('<button type="button" class="layui-btn layui-btn-sm">'+v+'</button>');
 
                     });
 

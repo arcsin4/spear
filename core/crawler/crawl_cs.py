@@ -111,7 +111,7 @@ class CrawlCs(BaseCrawlRequest):
 
     def _parseDataDetail(self, url):
 
-        content = None
+        content = ''
         status_code, response = self.get(url=url, get_params={})
 
         if status_code == 200:
