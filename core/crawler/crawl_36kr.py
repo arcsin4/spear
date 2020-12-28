@@ -4,11 +4,10 @@ import json
 
 from core.env import env
 from core.logger import system_log
-from core.base.item_data_store import ItemDataStore
-from core.crawler.base_crawl_request import BaseCrawlRequest
+from core.base.base_crawl import BaseCrawl
 from bs4 import BeautifulSoup
 
-class Crawl36kr(BaseCrawlRequest):
+class Crawl36kr(BaseCrawl):
 
     _item_data_store = None
 
@@ -37,21 +36,6 @@ class Crawl36kr(BaseCrawlRequest):
     def __init__(self):
 
         super(Crawl36kr, self).__init__()
-
-        self._item_data_store = ItemDataStore()
-
-        self.refreshPids()
-
-    def refreshPids(self):
-
-        res = self._item_data_store.getCrawlResults(website=self._website, limit=1000)
-        self._pids = set([str(r['pid']) for r in res])
-
-    def _chkPidExist(self, pid):
-        return str(pid) in self._pids
-
-    def _addPid(self, pid):
-        self._pids.add(str(pid))
 
     def _runNext(self, page_callback):
         url = self._url
