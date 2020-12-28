@@ -5,6 +5,7 @@ from core.crawler.crawl_cninfo import CrawlCninfo
 from core.crawler.crawl_cnstock import CrawlCnstock
 from core.crawler.crawl_cs import CrawlCs
 from core.crawler.crawl_36kr import Crawl36kr
+from core.crawler.crawl_thepaper import CrawlThepaper
 
 
 
@@ -14,4 +15,5 @@ __all__ = [
     "CrawlCnstock",
     "CrawlCs",
     "Crawl36kr",
+    "CrawlThepaper",
 ]

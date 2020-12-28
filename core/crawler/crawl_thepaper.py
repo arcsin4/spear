@@ -1,46 +1,42 @@
 # -*- coding: utf-8 -*-
 import time
-import datetime
-import re
 import json
+import re
+import datetime
 
 from core.env import env
 from core.logger import system_log
 from core.base.item_data_store import ItemDataStore
 from core.crawler.base_crawl_request import BaseCrawlRequest
+
 from bs4 import BeautifulSoup
 
-class CrawlSseinfo(BaseCrawlRequest):
+from urllib.parse import urljoin
+
+class CrawlThepaper(BaseCrawlRequest):
 
     _item_data_store = None
 
     _headers = {
-            'Referer': 'http://sns.sseinfo.com/qa.do',
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36',
-            'Host': 'sns.sseinfo.com',
+        'Referer': 'https://www.thepaper.cn/list_25434',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36',
+        'Host': 'www.thepaper.cn',
     }
 
-    _url = 'http://sns.sseinfo.com/ajax/feeds.do?type=11&pageSize={}&lastid=-1&show=1&page={}&_={}'
-    _pagesize = 100
+    _url = 'https://www.thepaper.cn/list_25434'
+    _url_next = 'https://www.thepaper.cn/load_index.jsp?nodeids=25434&topCids=&pageidx={}&isList=true&lastTime={}'
 
-    _jumpurl = 'http://sns.sseinfo.com/qa.do'
-    _website = 'sseinfo'
+    _url_jump = 'https://www.thepaper.cn/'
+
+    _website = 'thepaper'
 
     _pids = None
-
-    _time_res = {
-        'seconds': re.compile('(\d+)秒前'),
-        'minutes': re.compile('(\d+)分钟前'),
-        'hours': re.compile('(\d+)小时前'),
-        'yesterday': re.compile('昨天 ([\d\:]+)'),
-        'md': re.compile('([\d\:\s月日]+)'),
-    }
 
     _firstrun = True
 
     def __init__(self):
 
-        super(CrawlSseinfo, self).__init__()
+        super(CrawlThepaper, self).__init__()
 
         self._item_data_store = ItemDataStore()
 
@@ -57,8 +53,7 @@ class CrawlSseinfo(BaseCrawlRequest):
     def _addPid(self, pid):
         self._pids.add(str(pid))
 
-    def _run(self, page):
-        url = self._url.format(self._pagesize, page, str(int(time.time()*1000)))
+    def _run(self, url):
 
         status_code, response = self.post(url=url, post_data={})
 
@@ -73,13 +68,17 @@ class CrawlSseinfo(BaseCrawlRequest):
 
         if self._firstrun:
             system_log.info('{} first run'.format(self._website))
-            for page in range(1, 10):
-                self._run(page)
+
+            self._run(self._url)
+            time.sleep(1)
+
+            for page in range(2, 10):
+                self._run(self._url_next.format(page, str(int(time.time()*1000))))
                 time.sleep(1)
 
             self._firstrun = False
         else:
-            self._run(1)
+            self._run(self._url)
 
     def _parsetime(self, timestr):
         rr = re.fullmatch('(\d+)秒前', timestr, flags = 0)
@@ -133,24 +132,30 @@ class CrawlSseinfo(BaseCrawlRequest):
 
         datas = []
 
-        for e in soup.find_all(class_='m_feed_item'):
+        for e in soup.find_all(class_='news_li'):
 
-            pid = str(e.attrs['id'].split('-')[1])
+            try:
+                pid = e.find(name='h2').find(name='a').attrs['id']
+            except Exception as ex:
+                continue
 
             if self._chkPidExist(pid):
                 break
 
-            title = e.find(class_='m_feed_detail m_qa_detail').find(class_='m_feed_txt').get_text(separator=' ', strip=True).strip(' :')
-            content = e.find(class_='m_feed_detail m_qa').find(class_='m_feed_txt').get_text(separator=' ', strip=True).strip()
-            timestr = e.find(class_='m_feed_detail m_qa').find(class_='m_feed_from').find(name='span').get_text(separator=' ', strip=True).strip()
-
-            jumpurl = self._jumpurl
+            title = e.find(name='h2').find(name='a').get_text(separator=' ', strip=True).strip()
+            timestr = e.find(class_='pdtt_trbs').find(name='span').get_text(separator=' ', strip=True).strip()
 
             news_time = self._parsetime(timestr)
             if news_time is not None:
                 news_time = int(time.mktime(news_time.timetuple()))
             else:
                 news_time = int(time.time())
+
+            jumpurl = urljoin(self._url_jump, e.find(name='h2').find(name='a').attrs['href'])
+            timestr, content = self._parseDataDetail(jumpurl)
+
+            if timestr is not None and len(timestr) > 0:
+                news_time = int(time.mktime(time.strptime(timestr, "%Y-%m-%d %H:%M")))
 
             d = {
                 'website': self._website,
@@ -173,3 +178,23 @@ class CrawlSseinfo(BaseCrawlRequest):
 
             for x in datas:
                 self._addPid(x['pid'])
+
+    def _parseDataDetail(self, url):
+
+        timestr = ''
+        content = ''
+        status_code, response = self.get(url=url, get_params={})
+
+        if status_code == 200:
+            system_log.debug('{} runCrawl success [{}] {}'.format(self._website, status_code, url))
+
+            soup_detail = BeautifulSoup(response , 'lxml')
+
+            content = soup_detail.find(class_='news_txt').get_text(separator='<br />', strip=True).strip()
+
+            timestr = list(soup_detail.find(class_='news_about').find_all(name='p')[1].stripped_strings)[0].strip()
+
+        else:
+            system_log.error('{} runCrawl failed [{}] {}'.format(self._website, status_code, url))
+
+        return timestr, content

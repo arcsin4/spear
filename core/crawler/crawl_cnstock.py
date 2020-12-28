@@ -37,7 +37,7 @@ class CrawlCnstock(BaseCrawlRequest):
 
     def refreshPids(self):
 
-        res = self._item_data_store.getCrawlResults(website=self._website, limit=100)
+        res = self._item_data_store.getCrawlResults(website=self._website, limit=1000)
         self._pids = set([str(r['pid']) for r in res])
 
     def _chkPidExist(self, pid):

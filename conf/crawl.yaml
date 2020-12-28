@@ -38,3 +38,11 @@ group2:
     freq: [] #默认10, 15
     trigger: true
     trigger_part: ['title', 'content']
+
+group3:
+  thepaper: #澎湃新闻
+    website: 'thepaper'
+    class: 'CrawlThepaper'
+    freq: [] #默认10, 15
+    trigger: true
+    trigger_part: ['title']
