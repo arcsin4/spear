@@ -461,7 +461,7 @@ function search_trigger_msg()
         $sql .= " AND trigger_words like ? ";
     }
 
-    $sql .= " ORDER BY news_time DESC, pid DESC ";
+    $sql .= " ORDER BY news_time DESC, pid DESC";
 
     $cmd = $conn->prepare($sql);
 
@@ -474,10 +474,24 @@ function search_trigger_msg()
     if ($cmd->execute()) {
         $rtn['data'] = $cmd->fetchAll();
 
+        if(count($rtn['data']) > 0){
+
+            $sql_updt = "UPDATE `trigger_msg` SET read_status=1 WHERE read_status=0 and news_time <= :news_time ";
+            $cmd = $conn->prepare($sql_updt);
+            $cmd->bindvalue(':news_time', $rtn['data'][0]['news_time']);
+
+            $cmd->execute();
+        }
+
         $res_ws = self_get_websites();
 
         foreach($rtn['data'] as $k=>$v)
         {
+            $rtn['data'][$k]['popup'] = 0;
+            if( $v['read_status'] == 0 && (time() - $v['news_time'])  <= 3600 ){
+                $rtn['data'][$k]['popup'] = 1;
+            }
+
             $rtn['data'][$k]['website_name'] = @$res_ws[$rtn['data'][$k]['website']] != "" ? $res_ws[$rtn['data'][$k]['website']] : $rtn['data'][$k]['website'];
             $rtn['data'][$k]['create_time'] = date('Y-m-d H:i:s', $v['create_time']);
             $rtn['data'][$k]['news_time'] = date('Y-m-d H:i:s', $v['news_time']);

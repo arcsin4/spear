@@ -3,6 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta name="referrer" content="never">
     <title>crawl management page</title>
     <link rel="stylesheet" href="js/layui/css/layui.css" media="all">
     <script src="js/jquery-3.4.1.min.js" type="text/javascript" charset="utf-8"></script>
@@ -103,6 +104,16 @@ layui.use(['util', 'form', 'element', 'table', 'laydate', 'layer', 'upload'], fu
         table.resize('result_table');
     }
 
+    audio = new Audio();
+    audio.src = 'https://www.a5xiazai.com/demo/code_pop/19/1276/audio/notify.wav';
+
+    function playAudio(){
+        if (window.HTMLAudioElement) {
+            //console.log('play audio');
+            audio.play();
+        }
+    }
+
     function refreshResultTable(){
 
         $.post(
@@ -112,13 +123,28 @@ layui.use(['util', 'form', 'element', 'table', 'laydate', 'layer', 'upload'], fu
                 if(rtn.result=='Y'){
                     renderResultTable(rtn.data);
                 }
+
+                fg = false
+
+                $.each(rtn.data,function(n,value) {
+                    if( n >= 10 ){
+                        return true;
+                    }
+
+                    if(value.popup == 1 ){
+                        //console.log(JSON.stringify(value));
+                        openCard(value, 0, true, true);
+                        if(fg == false){
+                            playAudio()
+                            fg = true
+                        }
+                    }
+                });
             }
             ,'json'
 
         );
     }
-
-    refreshResultTable();
 
     //监听提交
     form.on('submit(search_confirm)', function(data){
@@ -145,37 +171,64 @@ layui.use(['util', 'form', 'element', 'table', 'laydate', 'layer', 'upload'], fu
 
     //监听行双击事件
     table.on('row(result_table)', function(obj){
+        openCard(obj.data, 0, false)
+    });
 
-        content2 = '<div class="layui-fluid" >\
-            <div class="layui-row layui-col-space10" > \
-                <div class="layui-col-md12" >'+obj.data.title+'</div> \
-            </div> \
-            <hr /> \
-            <div class="layui-row layui-col-space10" > \
-                <div class="layui-col-md12" >'+obj.data.content+'</div> \
-            </div> \
-        </div>';
+    function openCard(data, close_time = 0, offset_random=false, alert_audio = false){
 
         urlstr = "";
-        if(obj.data.jump_url != ""){
-            urlstr = '<a href="'+obj.data.jump_url+'" target="_blank" ><i class="layui-icon layui-icon-link"></i></a>'
+        if(data.jump_url != ""){
+            urlstr = '<a href="'+data.jump_url+'" target="_blank" ><i class="layui-icon layui-icon-link"></i></a>'
         }
 
         content = '<div class="layui-card"> \
-        <div class="layui-card-header">'+'【'+obj.data.website_name+'】&nbsp;&nbsp;'+obj.data.news_time+'&nbsp;&nbsp;&nbsp;&nbsp;'+urlstr+'</div>\
-        <div class="layui-card-body">'+obj.data.title+'<hr /><hr />'+obj.data.content+'</div> \
+        <div class="layui-card-header">'+'【'+data.website_name+'】&nbsp;&nbsp;'+data.news_time+'&nbsp;&nbsp;&nbsp;&nbsp;'+urlstr+'</div>\
+        <div class="layui-card-body">'+data.title+'<hr /><hr />'+data.content+'</div> \
         </div>';
         //console.log(obj.tr) //得到当前行元素对象
         //console.log(obj.data) //得到当前行数据
+
+        offset = 'auto'
+
+        if(offset_random == true){
+            offset = [ //为了演示，随机坐标
+                Math.random() * ($(window).height()-500)
+                ,Math.random() * ($(window).width()-500)
+            ]
+        }
+
         layer.open({
             type: 1
-            ,id: 'show_crawl_result_div'
+            //,id: 'show_crawl_result_div'
             //,shade: false
             ,shadeClose: true
             ,title: ''
             ,content: content //注意，如果str是object，那么需要字符拼接。
             ,area: ['500px', '500px']
+            ,maxmin: true
+            ,offset: offset
+            ,time: close_time*1000
+            ,zIndex: layer.zIndex //重点1
+            ,success: function(layero){
+                layer.setTop(layero); //重点2
+            }
+            ,btn: ['关闭', '全部关闭'] //只是为了演示
+            ,btn2: function(){
+                layer.closeAll();
+            }
         });
+    }
+
+    $(function(){
+        refreshResultTable();
+
+        setInterval(function(){
+            refreshResultTable();
+        }, 10*1000);
+
+        setTimeout(function(){
+            location.reload();
+        }, 3600*1000 );
     });
 
 });
