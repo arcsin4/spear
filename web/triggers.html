@@ -105,7 +105,7 @@ layui.use(['util', 'form', 'element', 'table', 'laydate', 'layer', 'upload'], fu
     }
 
     audio = new Audio();
-    audio.src = 'https://www.a5xiazai.com/demo/code_pop/19/1276/audio/notify.wav';
+    audio.src = '/audio/notify.wav';
 
     function playAudio(){
         if (window.HTMLAudioElement) {
@@ -226,9 +226,9 @@ layui.use(['util', 'form', 'element', 'table', 'laydate', 'layer', 'upload'], fu
             refreshResultTable();
         }, 10*1000);
 
-        setTimeout(function(){
-            location.reload();
-        }, 3600*1000 );
+        // setTimeout(function(){
+        //     location.reload();
+        // }, 3600*1000 );
     });
 
 });
