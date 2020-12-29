@@ -68,6 +68,9 @@ class CrawlCs(BaseCrawl):
             news_time = int(time.mktime(time.strptime(e.find(name='em').get_text(separator=' ', strip=True).strip(), "%Y-%m-%d %H:%M")))
             title = e.find(name='h3').get_text(separator=' ', strip=True).strip()
 
+            if news_time >= time.time()+300*86400:
+                news_time = news_time - 365*86400
+
             jumpurl = urljoin(self._url, e.find(name='a').attrs['href'])
             content = self._parseDataDetail(jumpurl)
 
