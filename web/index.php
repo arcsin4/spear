@@ -488,7 +488,7 @@ function search_trigger_msg()
         foreach($rtn['data'] as $k=>$v)
         {
             $rtn['data'][$k]['popup'] = 0;
-            if( $v['read_status'] == 0 && (time() - $v['news_time'])  <= 3600 ){
+            if(date('H') >=9 && date('H') <=15 && $v['read_status'] == 0 && (time() - $v['news_time'])  <= 3600 ){
                 $rtn['data'][$k]['popup'] = 1;
             }
 
