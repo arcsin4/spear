@@ -105,7 +105,7 @@ layui.use(['util', 'form', 'element', 'table', 'laydate', 'layer', 'upload'], fu
     }
 
     audio = new Audio();
-    audio.src = '/audio/notify.wav'; //https://www.a5xiazai.com/demo/code_pop/19/1276
+    audio.src = '/audio/notify1.mp3';
 
     function playAudio(){
         if (window.HTMLAudioElement) {
@@ -216,6 +216,7 @@ layui.use(['util', 'form', 'element', 'table', 'laydate', 'layer', 'upload'], fu
             ,btn2: function(){
                 layer.closeAll();
             }
+            ,time: 60*1000
         });
     }
 
