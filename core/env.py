@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from functools import lru_cache
 import yaml
 import os
 import copy
@@ -124,6 +125,19 @@ class Environment(object):
 
     def setEventKeywords(self, event_keywords):
         self._event_keywords = event_keywords
+
+    @lru_cache(None)
+    def getEventKeywords(self, website=''):
+
+        rtn = []
+
+        if 'all' in self._event_keywords.keys():
+            rtn.extend(self._event_keywords['all'])
+
+        if website != '' and website != 'all' and website in  self._event_keywords.keys():
+            rtn.extend(self._event_keywords[website])
+
+        return rtn
 
     def setWebsites(self, websites):
         self._websites = websites

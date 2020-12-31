@@ -28,6 +28,11 @@
         <div class="layui-col-md2" >
             <input type="text" name="kw_name" id="kw_name" placeholder="新增关键字" class="layui-input" lay-verType="tips" style="width:200px;">
         </div>
+        <div class="layui-col-md2" >
+            <select name="select_website" id="select_website" lay-verify="select_website">
+                <option value="" selected>全站点</option>
+            </select>
+        </div>
         <div class="layui-col-md5" >
             <button type="submit" class="layui-btn" lay-submit="" lay-filter="create_kw" id="create_kw"><i class="layui-icon layui-icon-add-circle"></i>新建关键字</button>
             &nbsp;&nbsp;&nbsp;&nbsp;
@@ -36,9 +41,7 @@
     </div>
 
     <hr />
-    <div class="layui-row layui-col-space10" >
-        <div class="layui-col-md12" name='result_div' id='result_div'></div>
-    </div>
+    <div class="layui-row layui-col-space10" name='result_div' id='result_div'></div>
     </form>
 </div>
 
@@ -61,6 +64,28 @@ layui.use(['util', 'form', 'element', 'table', 'laydate', 'layer', 'upload'], fu
 
     var $ = layui.$; //重点处
 
+    function refreshWebsites()
+    {
+        $.post(
+            "/index.php"
+            ,{'action':'get_websites'}
+            ,function(rtn){
+                if(rtn.result=='Y')
+                {
+                    $("#select_website").html('');
+
+                    $("#select_website").append("<option value='' selected>全站点</option>");
+
+                    $.each(rtn.data,function(n,value) {
+                        $("#select_website").append("<option value='"+n+"' >"+value+"</option>");
+                    });
+
+                    form.render('select', 'index_form');
+                }
+            }
+            ,'json'
+        );
+    }
 
     function refreshResultDiv()
     {
@@ -70,10 +95,22 @@ layui.use(['util', 'form', 'element', 'table', 'laydate', 'layer', 'upload'], fu
             ,function(rtn){
                 if(rtn.result=='Y')
                 {
-                    $("#result_div").html('');
+                    //$("#result_div").html('');
+
+                    content = "";
                     $.each(rtn.data,function(n, value) {
-                        $("#result_div").append("<input type='checkbox' name='keywords[]' value='"+value+"' title='"+value+"'>");
+                        content += "<div class='layui-col-md12' ><blockquote class='layui-elem-quote'>"+value.name+"</blockquote></div>";
+
+                        content += "<div class='layui-col-md12'>"; //"</div>";
+
+                        $.each(value.kws,function(nn, vv) {
+                            content += "<input type='checkbox' name='keywords[]' value='"+n+'-'+vv+"' title='"+vv+"'>";
+                        })
+
+                        content += "</div>";
                     });
+
+                    $("#result_div").html(content);
 
                     form.render('checkbox', 'index_form');
                 }
@@ -81,7 +118,6 @@ layui.use(['util', 'form', 'element', 'table', 'laydate', 'layer', 'upload'], fu
             ,'json'
         );
     }
-    refreshResultDiv();
 
     //监听提交
     form.on('submit(create_kw)', function(data){
@@ -132,6 +168,11 @@ layui.use(['util', 'form', 'element', 'table', 'laydate', 'layer', 'upload'], fu
             ,"json"
         );
         return false;
+    });
+
+    $(function(){
+        refreshWebsites();
+        refreshResultDiv();
     });
 
 });

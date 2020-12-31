@@ -30,13 +30,22 @@ class ItemDataStore(object):
     def getEventKeywords(self):
 
         db_name = self._db_name
-        sql = """SELECT * FROM `event_keywords` WHERE 1=1 """
+        sql = """SELECT * FROM `event_keywords` WHERE 1=1 ORDER BY website ASC """
         res = self._mysql_adapter.fetch(sql_database_name=db_name, sql_statement=sql, sql_data=None)
 
-        if len(res) > 0:
-            return [r['kw'] for r in res]
+        rtn = {}
 
-        return []
+        if len(res) > 0:
+            for row in res:
+                if row['website'] == '':
+                    row['website'] = 'all'
+
+                if row['website'] in rtn.keys():
+                    rtn[row['website']].append(row['kw'])
+                else:
+                    rtn[row['website']] = [row['kw'], ]
+
+        return rtn
 
     #获取爬虫结果记录
     def getCrawlResults(self, website, limit=100):

@@ -203,7 +203,7 @@ function self_get_keywords()
 {
     $conn = db();
     $sql = "SELECT * FROM `event_keywords`
-        WHERE 1=1 ";
+        WHERE 1=1  ORDER BY website ASC ";
 
     $cmd = $conn->prepare($sql);
 
@@ -212,9 +212,26 @@ function self_get_keywords()
     if ($cmd->execute()) {
         $res = $cmd->fetchAll();
 
+        $ws = self_get_websites();
+
         foreach($res as $k=>$v)
         {
-            $data[] = $v['kw'];
+            $website_name = $v['website'];
+
+            if($v['website'] == ''){
+                $website_name = '全站点';
+            }
+            elseif( in_array($v['website'], array_keys($ws))){
+                $website_name = $ws[$v['website']];
+            }
+
+            if(!isset($data[$v['website']])){
+                $data[$v['website']] = array(
+                    'name'=>$website_name,
+                    'kws'=>array(),
+                );
+            }
+            $data[$v['website']]['kws'][] = $v['kw'];
         }
     }
 
@@ -233,6 +250,7 @@ function get_keywords()
 function create_keyword()
 {
     $kw_name = @$_REQUEST['kw_name'];
+    $website = @$_REQUEST['select_website'];
 
     $rtn = array('result'=>'N');
 
@@ -245,9 +263,10 @@ function create_keyword()
 
     $conn = db();
 
-    $sql = "INSERT IGNORE INTO `event_keywords` SET `kw`=:kw ;";
+    $sql = "INSERT IGNORE INTO `event_keywords` SET `kw`=:kw, `website`=:website ;";
     $cmd = $conn->prepare($sql);
     $cmd->bindValue(":kw", $kw_name);
+    $cmd->bindValue(":website", $website);
 
     if($cmd->execute())
     {
@@ -260,38 +279,33 @@ function create_keyword()
 function delete_keyword()
 {
 
-    $keywords = @$_REQUEST['keywords'];
+    $kw_arr = @$_REQUEST['keywords'];
 
     $rtn = array('result'=>'N');
 
-    if(isset($keywords) && is_array($keywords) && count($keywords) > 0){
+    if(isset($kw_arr) && is_array($kw_arr) && count($kw_arr) > 0){
         //go on
     }
     else{
         show_result($rtn);
     }
 
-    $rtn = array('result'=>'Y');
-
     $conn = db();
+
     $sql = "DELETE FROM `event_keywords`
-        WHERE kw in ('' ";
+        WHERE kw=:kw AND website=:website ";
 
-    foreach($keywords as $w){
-        $sql .= ", ?";
-    }
-    $sql .= ")";
+    foreach($kw_arr as $v){
+        $tmp = explode("-", $v);
 
-    $cmd = $conn->prepare($sql);
+        $cmd = $conn->prepare($sql);
+        $cmd->bindValue(":kw", @$tmp[1]);
+        $cmd->bindValue(":website", @$tmp[0]);
 
-    $n = 1;
-    foreach($keywords as $w){
-        $cmd->bindValue($n, $w);
-        $n = $n + 1;
+        $cmd->execute();
     }
 
-    $cmd->execute();
-
+    $rtn = array('result'=>'Y');
     show_result($rtn);
 
 }
@@ -394,6 +408,28 @@ function get_running_status()
                     }
 
                     $vlist[] = $vv;
+                }
+
+                $v = $vlist;
+            }
+            elseif($k == 'event_keywords'){
+                #{"all": ["TikTok", "\u533b\u7f8e", "\u534e\u4e3a", "\u6296\u97f3", "\u817e\u8baf", "\u8c37\u6b4c", "\u963f\u91cc", "\u7279\u65af\u62c9", "\u4eca\u65e5\u5934\u6761", "\u533b\u7597\u7f8e\u5bb9"], "36kr": ["TEST"], "thepaper": ["aaa", "TEST", "asdfaf"]}
+                $ws = self_get_websites();
+
+                $vlist = array();
+                foreach($v as $kk=>$vv){
+
+                    $website_name = $kk;
+
+                    if($kk == '' || $kk == 'all'){
+                        $website_name = '全站点';
+                    }
+
+                    if( in_array($kk,array_keys($ws))){
+                        $website_name = $ws[$kk];
+                    }
+
+                    $vlist[$website_name] = $vv;
                 }
 
                 $v = $vlist;

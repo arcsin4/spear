@@ -112,7 +112,7 @@ def threadTriggerWorker():
 
                 if len(env.crawler_status[website]['trigger_part']) > 0:
                     tp = [msg_data[x] for x in env.crawler_status[website]['trigger_part']]
-                    head_kws = event_trigger.runTrigger(*tp)
+                    head_kws = event_trigger.runTrigger(*tp, website=website)
 
                     if len(head_kws) > 0:
                         trigger_flag = True
