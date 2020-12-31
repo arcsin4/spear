@@ -94,6 +94,7 @@ class CrawlThepaper(BaseCrawl):
                 news_time = int(time.time())
 
             jumpurl = urljoin(self._url_jump, e.find(name='h2').find(name='a').attrs['href'])
+
             timestr, content = self._parseDataDetail(jumpurl)
 
             if timestr is not None and len(timestr) > 0:
@@ -131,12 +132,15 @@ class CrawlThepaper(BaseCrawl):
         if status_code == 200:
             system_log.debug('{} runCrawl success [{}] {}'.format(self._website, status_code, url))
 
-            soup_detail = BeautifulSoup(response , 'lxml')
+            try:
+                soup_detail = BeautifulSoup(response , 'lxml')
 
-            content = soup_detail.find(class_='news_txt').get_text(separator='<br />', strip=True).strip()
+                content = soup_detail.find(class_='news_txt').get_text(separator='<br />', strip=True).strip()
 
-            timestr = list(soup_detail.find(class_='news_about').find_all(name='p')[1].stripped_strings)[0].strip()
+                timestr = list(soup_detail.find(class_='news_about').find_all(name='p')[1].stripped_strings)[0].strip()
 
+            except Exception as ex:
+                pass
         else:
             system_log.error('{} runCrawl failed [{}] {}'.format(self._website, status_code, url))
 
