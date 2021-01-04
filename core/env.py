@@ -127,15 +127,15 @@ class Environment(object):
 
     def getEventKeywords(self, website=''):
 
-        rtn = []
+        rtn = set()
 
         if 'all' in self._event_keywords.keys():
-            rtn.extend(self._event_keywords['all'])
+            rtn.update(self._event_keywords['all'])
 
         if website != '' and website != 'all' and website in  self._event_keywords.keys():
-            rtn.extend(self._event_keywords[website])
+            rtn.update(self._event_keywords[website])
 
-        return rtn
+        return list(set(rtn))
 
     def setWebsites(self, websites):
         self._websites = websites
