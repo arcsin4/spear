@@ -4,7 +4,6 @@ import json
 
 from core.env import env
 from core.logger import system_log
-from core.base.item_data_store import ItemDataStore
 from core.base.base_crawl import BaseCrawl
 
 from bs4 import BeautifulSoup

@@ -46,3 +46,10 @@ group3:
     freq: [] #默认10, 15
     trigger: true
     trigger_part: ['title']
+
+  yicai: #第一财经
+    website: 'yicai'
+    class: 'CrawlYicai'
+    freq: [] #默认10, 15
+    trigger: true
+    trigger_part: ['title']
