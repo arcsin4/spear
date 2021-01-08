@@ -358,7 +358,7 @@ function get_running_status()
             $v = json_decode($value['content'], true);
 
             if($k == 'start_time'){
-                $v = date('Y年m月d日 H:i:s', $v);
+                $v = date('m月d日 H:i:s', $v);
             }
             elseif($k == 'crawler_status'){
                 $ws = self_get_websites();
@@ -404,7 +404,7 @@ function get_running_status()
                         $vv['last_run'] = '--';
                     }
                     else{
-                        $vv['last_run'] = date('Y年m月d日 H:i:s', $vv['last_run']);
+                        $vv['last_run'] = date('m月d日 H:i:s', $vv['last_run']);
                     }
 
                     $vlist[] = $vv;
