@@ -123,19 +123,34 @@ class Environment(object):
         self._crawler_status[crawler_name]['trigger_part'] = trigger_part
 
     def setEventKeywords(self, event_keywords):
-        self._event_keywords = event_keywords
+        ek = {}
+
+        all_kws = []
+        if 'all' in event_keywords.keys():
+            all_kws.extend(event_keywords['all'])
+
+        for w,i in self._websites.items():
+            ek[w] = {'all':[], 'extra':[], 'separately_keywords':[]}
+            if i['separately_keywords'] == 1:
+                if w in event_keywords.keys():
+                    ek[w]['separately_keywords'] = event_keywords[w]
+            else:
+                ek[w]['all'] = all_kws
+                if w in event_keywords.keys():
+                    ek[w]['extra'] = event_keywords[w]
+
+        self._event_keywords = ek
 
     def getEventKeywords(self, website=''):
 
+        if website not in self._event_keywords.keys():
+            return []
+
         rtn = set()
+        for kws in self._event_keywords[website].values():
+            rtn.update(kws)
 
-        if 'all' in self._event_keywords.keys():
-            rtn.update(self._event_keywords['all'])
-
-        if website != '' and website != 'all' and website in  self._event_keywords.keys():
-            rtn.update(self._event_keywords[website])
-
-        return list(set(rtn))
+        return list(rtn)
 
     def setWebsites(self, websites):
         self._websites = websites

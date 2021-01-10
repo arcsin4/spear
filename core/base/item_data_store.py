@@ -22,7 +22,7 @@ class ItemDataStore(object):
         res = self._mysql_adapter.fetch(sql_database_name=db_name, sql_statement=sql, sql_data=None)
 
         if len(res) > 0:
-            return {r['website']: r['website_name'] for r in res}
+            return {r['website']: {'website_name':r['website_name'], 'url':r['url'], 'separately_keywords':int(r['separately_keywords']) } for r in res}
 
         return {}
 

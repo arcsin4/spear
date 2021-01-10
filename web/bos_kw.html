@@ -25,15 +25,15 @@
 <div class="layui-fluid" >
     <form class="layui-form" action="" lay-filter="index_form">
     <div class="layui-row layui-col-space10" >
-        <div class="layui-col-md2" >
-            <input type="text" name="kw_name" id="kw_name" placeholder="新增关键字" class="layui-input" lay-verType="tips" style="width:200px;">
+        <div class="layui-col-md2 layui-input-inline" >
+            <input type="text" name="kw_name" id="kw_name" placeholder="新增关键字" class="layui-input" lay-verType="tips">
         </div>
-        <div class="layui-col-md2" >
-            <select name="select_website" id="select_website" lay-verify="select_website">
+        <div class="layui-col-md2 layui-input-inline" >
+            <select name="select_website" id="select_website" lay-verify="select_website" >
                 <option value="" selected>全站点</option>
             </select>
         </div>
-        <div class="layui-col-md5" >
+        <div class="layui-col-md5 layui-input-inline" >
             <button type="submit" class="layui-btn" lay-submit="" lay-filter="create_kw" id="create_kw"><i class="layui-icon layui-icon-add-circle"></i>新建关键字</button>
             &nbsp;&nbsp;&nbsp;&nbsp;
             <button type="submit" class="layui-btn layui-btn-danger" lay-submit="" lay-filter="delete_kw" id="delete_kw"><i class="layui-icon layui-icon-delete"></i>删除选中关键字</button>
@@ -99,7 +99,19 @@ layui.use(['util', 'form', 'element', 'table', 'laydate', 'layer', 'upload'], fu
 
                     content = "";
                     $.each(rtn.data,function(n, value) {
-                        content += "<div class='layui-col-md12' ><blockquote class='layui-elem-quote'>"+value.name+"</blockquote></div>";
+                        if(n == 'all'){
+                            content += "<div class='layui-col-md12' ><blockquote class='layui-elem-quote'>"+value.name+"</blockquote></div>";
+                        }
+                        else
+                        {
+                            if(value.separately==1){
+                                content += "<div class='layui-col-md2 layui-input-inline' ><blockquote class='layui-elem-quote'>"+value.name+"</blockquote></div><div class='layui-col-md2 layui-input-inline' ><input type='checkbox' name='separately-"+n+"' id='separately-"+n+"' lay-skin='switch' lay-text='单独设置开启|单独设置关闭' lay-filter='switch_separately' value='1' data-a='x' checked></div>";
+                            }
+                            else{
+                                content += "<div class='layui-col-md2 layui-input-inline' ><blockquote class='layui-elem-quote'>"+value.name+"</blockquote></div><div class='layui-col-md2 layui-input-inline' ><input type='checkbox' name='separately-"+n+"' id='separately-"+n+"' lay-skin='switch' lay-text='单独设置开启|单独设置关闭' lay-filter='switch_separately' value='1' data-a='x'></div>";
+                            }
+
+                        }
 
                         content += "<div class='layui-col-md12'>"; //"</div>";
 
@@ -169,6 +181,42 @@ layui.use(['util', 'form', 'element', 'table', 'laydate', 'layer', 'upload'], fu
         );
         return false;
     });
+
+    form.on('switch(switch_separately)', function(data){
+        // console.log(data.elem); //得到checkbox原始DOM对象
+        // console.log(data.elem.checked); //开关是否开启，true或者false
+        // console.log(data.value); //开关value值，也可以通过data.elem.value得到
+        // console.log(data.othis); //得到美化后的DOM对象
+
+        d = {}
+
+        d['action'] = 'set_switch_separately'
+        d['website'] = data.elem.name
+
+        if(data.elem.checked){
+            d['separately'] = 1
+        }
+        else{
+            d['separately'] = 0
+        }
+
+        $.post(
+            "/index.php"
+            ,d
+            ,function(rtn){
+                if(rtn.result == "Y"){
+                    layer.msg("配置单独设置成功", {time: 2000});
+                    refreshResultDiv();
+                }else{
+                    layer.msg("配置单独设置失败", {time: 2000});
+                }
+            }
+            ,"json"
+        );
+        return false;
+
+    });
+
 
     $(function(){
         refreshWebsites();

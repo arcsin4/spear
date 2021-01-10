@@ -29,8 +29,8 @@ from core.event.event_trigger import event_trigger
 from core.event.event_notify import event_notify
 
 item_data_store = ItemDataStore()
-env.setEventKeywords(item_data_store.getEventKeywords())
 env.setWebsites(item_data_store.getWebsites())
+env.setEventKeywords(item_data_store.getEventKeywords())
 
 env.setNofityTaskQueue(queue.Queue(100000))
 env.setMonitorTaskQueue(queue.Queue(100000))
@@ -123,7 +123,7 @@ def threadTriggerWorker():
                 if trigger_flag:
                     origin = website
                     if website in env.websites.keys():
-                        origin = env.websites[website]
+                        origin = env.websites[website]['website_name']
 
                     notify_msg = {
                         'head_kws': head_kws,
@@ -221,9 +221,10 @@ def mainEnvWorker():
         return False
 
     try:
+        env.setWebsites(item_data_store.getWebsites())
         env.setEventKeywords(item_data_store.getEventKeywords())
     except Exception as ex:
-        system_log.error('refresh env error:{}'.format(ex))
+        system_log.error('refresh env error: {} {}'.format(ex, str(traceback.format_exc())))
         #raise
 
     system_log.debug('env crawler status {}:'.format(env.crawler_status))

@@ -42,7 +42,8 @@
 
     <hr class="layui-bg-green" />
     <div class="layui-row layui-col-space10" >
-        <div class="layui-col-md12"><blockquote class="layui-elem-quote">触发的关键字</blockquote></div>
+        <div class="layui-col-md12"><blockquote class="layui-elem-quote">触发的关键字&nbsp;<span class="layui-badge layui-bg-green">全站通用</span>&nbsp;<span class="layui-badge layui-bg-orange">站点配置（与全站关键字组合）</span>&nbsp;<span class="layui-badge">站点单独配置（不与全站关键字组合）
+        </span></blockquote></div>
     </div>
     <div class="layui-row layui-col-space10" name='event_keywords_div' id='event_keywords_div'>
     </div>
@@ -238,24 +239,33 @@ layui.use(['util', 'form', 'element', 'table', 'laydate', 'layer', 'upload'], fu
                     content = ''
 
                     $.each(data.event_keywords,function(n, v) {
-                        content += '<div class="layui-col-md1">';
+                        content += '<div class="layui-row layui-col-space10" >'
 
-                        if(n=='全站点'){
-                            //content += '<span class="layui-badge">'+n+'</span>&nbsp;&nbsp;'
-                            content += '<button type="button" class="layui-btn layui-btn-sm layui-btn-radius layui-btn-danger">'+n+'</button>'
+                        content += '<div class="layui-col-md1"><button type="button" class="layui-btn layui-btn-sm layui-btn-radius layui-btn-normal">'+n+'</button></div>'
+
+                        content += '<div class="layui-col-md11"><div class="layui-btn-container">'
+
+                        if(v.hasOwnProperty('extra')){
+                            $.each(v.extra,function(nn, vv) {
+                                content += '<button type="button" class="layui-btn layui-btn-sm layui-btn-warm">'+vv+'</button>'
+                            });
                         }
-                        else{
-                            //content += '<span class="layui-badge layui-bg-blue">'+n+'</span>&nbsp;&nbsp;'
-                            content += '<button type="button" class="layui-btn layui-btn-sm layui-btn-radius layui-btn-normal">'+n+'</button>'
+
+                        if(v.hasOwnProperty('separately_keywords')){
+                            $.each(v.separately_keywords,function(nn, vv) {
+                                content += '<button type="button" class="layui-btn layui-btn-sm layui-btn-danger">'+vv+'</button>'
+                            });
                         }
 
-                        content += '</div><div class="layui-col-md11"><div class="layui-btn-container">'
-
-                        $.each(v,function(nn, vv) {
-                            content += '<button type="button" class="layui-btn layui-btn-sm">'+vv+'</button>'
-                        });
+                        if(v.hasOwnProperty('all')){
+                            $.each(v.all,function(nn, vv) {
+                                content += '<button type="button" class="layui-btn layui-btn-sm">'+vv+'</button>'
+                            });
+                        }
 
                         content += '</div></div>';
+
+                        content += '</div>';
                     });
 
                     $("#event_keywords_div").html(content);

@@ -17,6 +17,7 @@ $action_accept_arr = array(
     'get_running_status',
     'set_switch_off',
     'search_trigger_msg',
+    'set_switch_separately',
 );
 
 if (!in_array($action, $action_accept_arr) ){
@@ -191,6 +192,28 @@ function self_get_websites()
     return $data;
 }
 
+function self_get_websites_all()
+{
+    $conn = db();
+    $sql = "SELECT * FROM `website_list`
+        WHERE 1=1 ORDER BY create_time DESC ";
+
+    $cmd = $conn->prepare($sql);
+
+    $data = array();
+
+    if ($cmd->execute()) {
+        $res = $cmd->fetchAll();
+
+        foreach($res as $k=>$v)
+        {
+            $data[$v['website']] = $v;
+        }
+    }
+
+    return $data;
+}
+
 function get_websites()
 {
     $rtn = array('result'=>'Y', 'data'=>array());
@@ -212,27 +235,36 @@ function self_get_keywords()
     if ($cmd->execute()) {
         $res = $cmd->fetchAll();
 
-        $ws = self_get_websites();
+        $ws = self_get_websites_all();
+
+        $rtn = array(
+            'all' => array('name'=>'全站点', 'kws'=>array(), 'separately'=>0),
+        );
+
+        foreach($ws as $k=>$v)
+        {
+            $rtn[$k] = array('name'=>$v['website_name'], 'kws'=>array(), 'separately'=>$v['separately_keywords']);
+        }
 
         foreach($res as $k=>$v)
         {
             $website_name = $v['website'];
 
             if($v['website'] == ''){
-                $website_name = '全站点';
+                $rtn['all']['kws'][] = $v['kw'];
             }
-            elseif( in_array($v['website'], array_keys($ws))){
-                $website_name = $ws[$v['website']];
+            elseif( in_array($v['website'], array_keys($rtn))){
+                $rtn[$v['website']]['kws'][] = $v['kw'];
             }
-
-            if(!isset($data[$v['website']])){
-                $data[$v['website']] = array(
-                    'name'=>$website_name,
-                    'kws'=>array(),
-                );
-            }
-            $data[$v['website']]['kws'][] = $v['kw'];
         }
+
+        foreach($rtn as $k=>$v){
+            if(@$k != 'all' && count($v['kws']) <= 0 && @$v['separately']=='0'){
+                unset($rtn[$k]);
+            }
+        }
+
+        $data = $rtn;
     }
 
     return $data;
@@ -306,6 +338,42 @@ function delete_keyword()
     }
 
     $rtn = array('result'=>'Y');
+    show_result($rtn);
+
+}
+
+
+function set_switch_separately()
+{
+    $website = @$_REQUEST['website'];
+    $separately = @$_REQUEST['separately'];
+
+    $rtn = array('result'=>'N');
+
+    if(@$website != '' && in_array($separately,array('0','1'))){
+        //go on
+    }
+    else{
+        show_result($rtn);
+    }
+
+    $website = explode('-', $website);
+    $website = $website[1];
+
+    $conn = db();
+
+    $sql = "UPDATE `website_list` SET separately_keywords=:separately
+        WHERE website=:website ";
+
+    $cmd = $conn->prepare($sql);
+    $cmd->bindValue(":separately", @$separately);
+    $cmd->bindValue(":website", @$website);
+
+
+    if($cmd->execute())
+    {
+        $rtn = array('result'=>'Y');
+    }
     show_result($rtn);
 
 }
