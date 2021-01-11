@@ -39,6 +39,13 @@ group2:
     trigger: true
     trigger_part: ['title', 'content']
 
+  ijiwei: #爱集微
+    website: 'ijiwei'
+    class: 'CrawlIjiwei'
+    freq: [] #默认10, 15
+    trigger: true
+    trigger_part: ['title']
+
 group3:
   thepaper: #澎湃新闻
     website: 'thepaper'
