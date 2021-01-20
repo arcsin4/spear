@@ -11,7 +11,7 @@ class CrawlCnstock(BaseCrawl):
     _item_data_store = None
 
     _headers = {
-            'Referer': 'http://app.cnstock.com/',
+            'Referer': 'https://news.cnstock.com/',
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36',
             'Host': 'app.cnstock.com',
 
@@ -35,7 +35,7 @@ class CrawlCnstock(BaseCrawl):
         time_str = str(int(time.time()*1000))
         url = self._url.format(time_str, page, self._pagesize, time_str)
 
-        status_code, response = self.post(url=url, post_data={})
+        status_code, response = self.get(url=url, get_params={})
 
         if status_code == 200:
             system_log.debug('{} runCrawl success [{}] {}'.format(self._website, status_code, url))
