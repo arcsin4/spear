@@ -293,7 +293,7 @@ def runCrawl(log_level='info'):
 
     while True:
         if not mainEnvWorker() :
-            system_log.warn('get stop signal! break while true!')
+            system_log.warning('get stop signal! break while true!')
             break
 
         time.sleep(10)
