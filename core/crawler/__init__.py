@@ -8,6 +8,7 @@ from core.crawler.crawl_36kr import Crawl36kr
 from core.crawler.crawl_thepaper import CrawlThepaper
 from core.crawler.crawl_yicai import CrawlYicai
 from core.crawler.crawl_ijiwei import CrawlIjiwei
+from core.crawler.crawl_cctv import CrawlCctv
 
 __all__ = [
     "CrawlSseinfo",
@@ -18,4 +19,5 @@ __all__ = [
     "CrawlThepaper",
     "CrawlYicai",
     "CrawlIjiwei",
+    "CrawlCctv",
 ]
