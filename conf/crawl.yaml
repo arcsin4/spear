@@ -46,6 +46,13 @@ group2:
     trigger: true
     trigger_part: ['title']
 
+  gov: #中国政府网
+    website: 'gov'
+    class: 'CrawlGov'
+    freq: [] #默认10, 15
+    trigger: true
+    trigger_part: ['title']
+
 group3:
   thepaper: #澎湃新闻
     website: 'thepaper'
@@ -57,6 +64,13 @@ group3:
   yicai: #第一财经
     website: 'yicai'
     class: 'CrawlYicai'
+    freq: [] #默认10, 15
+    trigger: true
+    trigger_part: ['title']
+
+  cctv: #央视网新闻
+    website: 'cctv'
+    class: 'CrawlCctv'
     freq: [] #默认10, 15
     trigger: true
     trigger_part: ['title']

@@ -79,4 +79,8 @@ class BaseCrawl(BaseCrawlRequest):
             s = str(rr.groups()[0])
             return datetime.datetime.strptime(s, '%Y年%m月%d日 %H:%M')
 
+        rr = re.fullmatch('([\d\.]+)', timestr, flags = 0)
+        if rr is not None:
+            s = str(rr.groups()[0])
+            return datetime.datetime.strptime(s, '%Y.%m.%d')
         return None
