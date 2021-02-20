@@ -330,6 +330,10 @@ function delete_keyword()
     foreach($kw_arr as $v){
         $tmp = explode("-", $v);
 
+        if(@$tmp[0] == "all"){
+            $tmp[0] = "";
+        }
+
         $cmd = $conn->prepare($sql);
         $cmd->bindValue(":kw", @$tmp[1]);
         $cmd->bindValue(":website", @$tmp[0]);
