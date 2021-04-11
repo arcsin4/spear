@@ -15,7 +15,7 @@ class CrawlSseinfo(BaseCrawl):
 
     _headers = {
         'Referer': 'http://sns.sseinfo.com/qa.do',
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/536.36 (KHTML, like Gecko) Chrome/77.1.2987.133 Safari/532.36',
         'Host': 'sns.sseinfo.com',
         'Connection': 'close',
     }
