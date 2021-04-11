@@ -18,6 +18,7 @@ class CrawlCs(BaseCrawl):
         'Referer': 'http://www.cs.com.cn/',
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36',
         'Host': 'www.cs.com.cn',
+        'Connection': 'close',
     }
 
     _url = 'http://www.cs.com.cn/sylm/jsbd/'

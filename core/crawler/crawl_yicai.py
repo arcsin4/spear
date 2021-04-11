@@ -13,9 +13,10 @@ class CrawlYicai(BaseCrawl):
     _item_data_store = None
 
     _headers = {
-            'Referer': 'https://www.yicai.com/',
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36',
-            'Host': 'www.yicai.com',
+        'Referer': 'https://www.yicai.com/',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36',
+        'Host': 'www.yicai.com',
+        'Connection': 'close',
 
     }
 

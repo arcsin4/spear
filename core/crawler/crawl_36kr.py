@@ -12,15 +12,17 @@ class Crawl36kr(BaseCrawl):
     _item_data_store = None
 
     _headers = {
-            'Referer': 'https://36kr.com/newsflashes',
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36',
-            'Host': '36kr.com',
+        'Referer': 'https://36kr.com/newsflashes',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36',
+        'Host': '36kr.com',
+        'Connection': 'close',
     }
 
     _headers_next = {
-            'Referer': 'https://36kr.com/',
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36',
-            'content-type': 'application/json',
+        'Referer': 'https://36kr.com/',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36',
+        'content-type': 'application/json',
+        'Connection': 'close',
     }
 
     _url = 'https://36kr.com/newsflashes'

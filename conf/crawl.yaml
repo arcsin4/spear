@@ -2,12 +2,12 @@
 #其它类的，关键字触发在标题和摘要里，不需要触发正文内容
 
 group1:
-  sseinfo: #上海互动易
-    website: 'sseinfo'
-    class: 'CrawlSseinfo'
-    freq: [] #默认10, 15
-    trigger: true
-    trigger_part: ['content']
+  # sseinfo: #上海互动易
+  #   website: 'sseinfo'
+  #   class: 'CrawlSseinfo'
+  #   freq: [] #默认10, 15
+  #   trigger: true
+  #   trigger_part: ['content']
 
   cnstock: #上证快讯
     website: 'cnstock'

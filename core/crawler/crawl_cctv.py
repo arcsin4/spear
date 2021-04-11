@@ -13,10 +13,10 @@ class CrawlCctv(BaseCrawl):
     _item_data_store = None
 
     _headers = {
-            'Referer': 'https://news.cctv.com/',
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36',
-            'Host': 'news.cctv.com',
-
+        'Referer': 'https://news.cctv.com/',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36',
+        'Host': 'news.cctv.com',
+        'Connection': 'close',
     }
 
     _url = 'https://news.cctv.com/2019/07/gaiban/cmsdatainterface/page/news_{}.jsonp?cb=news'

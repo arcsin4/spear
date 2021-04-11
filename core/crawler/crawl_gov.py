@@ -18,12 +18,14 @@ class CrawlGov(BaseCrawl):
         'Referer': 'http://sousuo.gov.cn/',
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36',
         'Host': 'sousuo.gov.cn',
+        'Connection': 'close',
     }
 
     _headers_detail = {
         'Referer': 'http://www.gov.cn/',
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36',
         'Host': 'www.gov.cn',
+        'Connection': 'close',
     }
 
     _url = 'http://sousuo.gov.cn/column/30611/{}.htm'

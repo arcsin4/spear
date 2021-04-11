@@ -18,6 +18,7 @@ class CrawlThepaper(BaseCrawl):
         'Referer': 'https://www.thepaper.cn/list_25434',
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36',
         'Host': 'www.thepaper.cn',
+        'Connection': 'close',
     }
 
     _url = 'https://www.thepaper.cn/list_25434'

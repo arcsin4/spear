@@ -14,9 +14,10 @@ class CrawlSseinfo(BaseCrawl):
     _item_data_store = None
 
     _headers = {
-            'Referer': 'http://sns.sseinfo.com/qa.do',
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36',
-            'Host': 'sns.sseinfo.com',
+        'Referer': 'http://sns.sseinfo.com/qa.do',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36',
+        'Host': 'sns.sseinfo.com',
+        'Connection': 'close',
     }
 
     _url = 'http://sns.sseinfo.com/ajax/feeds.do?type=11&pageSize={}&lastid=-1&show=1&page={}&_={}'

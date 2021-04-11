@@ -11,10 +11,10 @@ class CrawlCnstock(BaseCrawl):
     _item_data_store = None
 
     _headers = {
-            'Referer': 'https://news.cnstock.com/',
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36',
-            'Host': 'app.cnstock.com',
-
+        'Referer': 'https://news.cnstock.com/',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36',
+        'Host': 'app.cnstock.com',
+        'Connection': 'close',
     }
 
     _url = 'https://app.cnstock.com/api/waterfall?callback=jQuery_{}&colunm=qmt-sns_bwkx&page={}&num={}&showstock=1&_={}'
