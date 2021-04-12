@@ -3,6 +3,9 @@ import time
 import datetime
 import re
 import json
+import random
+
+from requests.api import head
 
 from core.env import env
 from core.logger import system_log
@@ -19,6 +22,9 @@ class CrawlSseinfo(BaseCrawl):
         'Host': 'sns.sseinfo.com',
         'Connection': 'close',
     }
+
+    _proxies_list = ["http://139.196.154.197:8080", "http://171.35.150.103:9999", "http://39.106.223.134:80",]
+    _proxies_url = None
 
     _url = 'http://sns.sseinfo.com/ajax/feeds.do?type=11&pageSize={}&lastid=-1&show=1&page={}&_={}'
     _pagesize = 100
@@ -45,14 +51,22 @@ class CrawlSseinfo(BaseCrawl):
     def _run(self, page):
         url = self._url.format(self._pagesize, page, str(int(time.time()*1000)))
 
-        status_code, response = self.post(url=url, post_data={})
+        if self._proxies_url is None:
+            self._proxies_url = random.choice(self._proxies_list)
+
+        proxies = {
+            "http": self._proxies_url,
+            "https": self._proxies_url,
+        }
+
+        status_code, response = self.get(url=url, get_params={}, proxies=proxies)
 
         if status_code == 200:
-            system_log.debug('{} runCrawl success [{}] {}'.format(self._website, status_code, url))
+            system_log.debug('{} runCrawl success [{}] {} use proxy: {}'.format(self._website, status_code, url, self._proxies_url))
 
             self.parseData(response)
         else:
-            system_log.error('{} runCrawl failed [{}] {}'.format(self._website, status_code, url))
+            system_log.error('{} runCrawl failed [{}] {} use proxy: {}'.format(self._website, status_code, url, self._proxies_url))
 
     def run(self):
 
