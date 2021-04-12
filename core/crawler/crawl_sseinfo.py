@@ -18,12 +18,13 @@ class CrawlSseinfo(BaseCrawl):
 
     _headers = {
         'Referer': 'http://sns.sseinfo.com/qa.do',
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/536.36 (KHTML, like Gecko) Chrome/77.1.2987.133 Safari/532.36',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36',
         'Host': 'sns.sseinfo.com',
         'Connection': 'close',
     }
 
-    _proxies_list = ["http://139.196.154.197:8080", "http://171.35.150.103:9999", "http://39.106.223.134:80",]
+    #_proxies_list = ["http://139.196.154.197:8080", "http://171.35.150.103:9999", "http://39.106.223.134:80",]
+    _proxies_list = ["http://39.106.223.134:80",]
     _proxies_url = None
 
     _url = 'http://sns.sseinfo.com/ajax/feeds.do?type=11&pageSize={}&lastid=-1&show=1&page={}&_={}'
