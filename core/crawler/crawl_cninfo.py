@@ -14,7 +14,7 @@ class CrawlCninfo(BaseCrawl):
         'Referer': 'http://irm.cninfo.com.cn/',
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36',
         'Host': 'irm.cninfo.com.cn',
-        'Connection': 'close',
+        #'Connection': 'close',
 
     }
 
