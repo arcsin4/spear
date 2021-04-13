@@ -234,7 +234,8 @@ def fetchProxiesUrl():
         if "code" in tmp and tmp['code'] == 0 and "data" in tmp :
             q_ip = tmp['data'][0]['ip']
             q_port = tmp['data'][0]['port']
-            q_expire_time = int(time.time())+30 #int(time.mktime(time.strptime(tmp['data'][0]['expire_time'], '%Y-%m-%d %H:%M:%S'))) - 20
+            #q_expire_time = int(time.time())+30 #int(time.mktime(time.strptime(tmp['data'][0]['expire_time'], '%Y-%m-%d %H:%M:%S'))) - 20
+            q_expire_time = int(time.mktime(time.strptime(tmp['data'][0]['expire_time'], '%Y-%m-%d %H:%M:%S'))) - 20
 
             rtn = {'proxies_url':"http://"+str(q_ip)+":"+str(q_port), 'expire_time': q_expire_time}
             system_log.debug('fetchProxiesUrl [{}] success: {}'.format(fanqie_ip_api_url, rtn))
