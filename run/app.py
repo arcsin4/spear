@@ -19,6 +19,7 @@ import queue
 import time
 import random
 import json
+import requests
 
 import logbook
 from core.logger import system_log
@@ -215,6 +216,37 @@ def threadMonitorWorker():
             system_log.error('operation monitor task queue error:{}'.format(ex))
             #raise
 
+def fetchProxiesUrl():
+    fanqie_ip_api_url = "http://x.fanqieip.com/ggg?getType=4&qty=1&port=1&time=5&city=310100&format=2&ss=1%2C2%2C3%2C4&dt=1&css="
+    # 上海 "http://x.fanqieip.com/ggg?getType=4&qty=1&port=1&time=5&city=310100&format=2&ss=1%2C2%2C3%2C4&dt=1&css="
+    # 全国 "http://x.fanqieip.com/ggg?getType=4&qty=1&port=1&time=5&city=0&format=2&ss=1%2C2%2C3%2C4&dt=1&css="
+
+    rtn = None
+
+    try:
+        session = requests.Session()
+        response = session.get(fanqie_ip_api_url, timeout=10)
+
+        response.encoding = response.apparent_encoding
+
+        tmp = json.loads(response.text)
+
+        if "code" in tmp and tmp['code'] == 0 and "data" in tmp :
+            q_ip = tmp['data'][0]['ip']
+            q_port = tmp['data'][0]['port']
+            q_expire_time = int(time.time())+30 #int(time.mktime(time.strptime(tmp['data'][0]['expire_time'], '%Y-%m-%d %H:%M:%S'))) - 20
+
+            rtn = {'proxies_url':"http://"+str(q_ip)+":"+str(q_port), 'expire_time': q_expire_time}
+            system_log.debug('fetchProxiesUrl [{}] success: {}'.format(fanqie_ip_api_url, rtn))
+
+    except Exception as ex:
+        system_log.error('fetchProxiesUrl [{}] failed: {}'.format(fanqie_ip_api_url, ex))
+
+        return None
+
+    return rtn
+
+
 def mainEnvWorker():
 
     rs = item_data_store.getRunningStatus()
@@ -229,6 +261,9 @@ def mainEnvWorker():
         #raise
 
     system_log.debug('env crawler status {}:'.format(env.crawler_status))
+
+    if env.proxies is None or int(time.time()) >= env.proxies['expire_time']:
+        env.setProxies(fetchProxiesUrl())
 
     data = [
         ['start_time', int(env.start_time)],

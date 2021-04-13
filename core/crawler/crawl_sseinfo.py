@@ -23,10 +23,6 @@ class CrawlSseinfo(BaseCrawl):
         'Connection': 'close',
     }
 
-    #_proxies_list = ["http://139.196.154.197:8080", "http://171.35.150.103:9999", "http://39.106.223.134:80",]
-    _proxies_list = ["http://39.106.223.134:80",]
-    _proxies_url = None
-
     _url = 'http://sns.sseinfo.com/ajax/feeds.do?type=11&pageSize={}&lastid=-1&show=1&page={}&_={}'
     _pagesize = 100
 
@@ -52,22 +48,21 @@ class CrawlSseinfo(BaseCrawl):
     def _run(self, page):
         url = self._url.format(self._pagesize, page, str(int(time.time()*1000)))
 
-        if self._proxies_url is None:
-            self._proxies_url = random.choice(self._proxies_list)
-
-        proxies = {
-            "http": self._proxies_url,
-            "https": self._proxies_url,
-        }
+        proxies = None
+        if env.proxies is not None:
+            proxies = {
+                "http": env.proxies['proxies_url'],
+                "https": env.proxies['proxies_url'],
+            }
 
         status_code, response = self.get(url=url, get_params={}, proxies=proxies)
 
         if status_code == 200:
-            system_log.debug('{} runCrawl success [{}] {} use proxy: {}'.format(self._website, status_code, url, self._proxies_url))
+            system_log.debug('{} runCrawl success [{}] {} use proxy: {}'.format(self._website, status_code, url, proxies))
 
             self.parseData(response)
         else:
-            system_log.error('{} runCrawl failed [{}] {} use proxy: {}'.format(self._website, status_code, url, self._proxies_url))
+            system_log.error('{} runCrawl failed [{}] {} use proxy: {}'.format(self._website, status_code, url, proxies))
 
     def run(self):
 

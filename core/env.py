@@ -29,6 +29,8 @@ class Environment(object):
     _monitor_task_queue = None
     _trigger_task_queue = None
 
+    _proxies = None #"http://39.106.223.134:80"
+
     def __init__(self):
 
         self._crawler_status = {}
@@ -92,6 +94,10 @@ class Environment(object):
     @property
     def trigger_task_queue(self):
         return self._trigger_task_queue
+
+    @property
+    def proxies(self):
+        return self._proxies
 
     def setConfDir(self, conf_dir:str):
 
@@ -166,5 +172,9 @@ class Environment(object):
 
     def setThreads(self, threads):
         self._threads = threads
+
+    def setProxies(self, proxies):
+        self._proxies = proxies
+
 
 env = Environment()
