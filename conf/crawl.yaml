@@ -9,6 +9,14 @@ group1:
     trigger: true
     trigger_part: ['title']
 
+  cs: #中证快讯
+    website: 'cs'
+    class: 'CrawlCs'
+    freq: [] #默认10, 15
+    trigger: true
+    trigger_part: ['title']
+
+group2:
   gov: #中国政府网
     website: 'gov'
     class: 'CrawlGov'
@@ -23,6 +31,7 @@ group1:
     trigger: true
     trigger_part: ['title']
 
+group3:
   yicai: #第一财经
     website: 'yicai'
     class: 'CrawlYicai'
@@ -30,14 +39,14 @@ group1:
     trigger: true
     trigger_part: ['title']
 
-group2:
-
-  cs: #中证快讯
-    website: 'cs'
-    class: 'CrawlCs'
+  thepaper: #澎湃新闻
+    website: 'thepaper'
+    class: 'CrawlThepaper'
     freq: [] #默认10, 15
     trigger: true
     trigger_part: ['title']
+
+group4:
 
   36kr: #36氪
     website: '36kr'
@@ -53,14 +62,7 @@ group2:
     trigger: true
     trigger_part: ['title']
 
-  thepaper: #澎湃新闻
-    website: 'thepaper'
-    class: 'CrawlThepaper'
-    freq: [] #默认10, 15
-    trigger: true
-    trigger_part: ['title']
-
-group3:
+group5:
   sseinfo: #上海互动易
     website: 'sseinfo'
     class: 'CrawlSseinfo'
@@ -68,7 +70,7 @@ group3:
     trigger: true
     trigger_part: ['content']
 
-group4:
+group6:
   cninfo: #深圳互动易
     website: 'cninfo'
     class: 'CrawlCninfo'
